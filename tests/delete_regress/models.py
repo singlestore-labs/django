@@ -39,6 +39,10 @@ class PlayedWith(models.Model):
     toy = models.ForeignKey(Toy, models.CASCADE)
     date = models.DateField(db_column="date_col")
 
+    class Meta:
+        unique_together = (('child', 'toy'),)
+        db_table = "delete_regress_played_with"
+
 
 class PlayedWithNote(models.Model):
     played = models.ForeignKey(PlayedWith, models.CASCADE)
@@ -54,7 +58,7 @@ class Email(Contact):
 
 
 class Researcher(models.Model):
-    contacts = models.ManyToManyField(Contact, related_name="research_contacts")
+    contacts = models.ManyToManyField(Contact, related_name="research_contacts", through="ResearcherContact")
     primary_contact = models.ForeignKey(
         Contact, models.SET_NULL, null=True, related_name="primary_contacts"
     )
@@ -63,8 +67,17 @@ class Researcher(models.Model):
     )
 
 
+class ResearcherContact(models.Model):
+    researcher = models.ForeignKey(Researcher, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('researcher', 'contact'),)
+        db_table = "delete_regress_researcher_contact"
+
+
 class Food(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20, primary_key=True)
 
 
 class Eaten(models.Model):
@@ -133,7 +146,7 @@ class FooFileProxy(FooFile):
 
 
 class OrgUnit(models.Model):
-    name = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=64, primary_key=True)
 
 
 class Login(models.Model):

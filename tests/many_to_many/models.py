@@ -8,8 +8,11 @@ objects, and a ``Publication`` has multiple ``Article`` objects.
 """
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Publication(models.Model):
+    objects = ModelStorageManager("")
     title = models.CharField(max_length=30)
 
     class Meta:
@@ -20,6 +23,7 @@ class Publication(models.Model):
 
 
 class Tag(models.Model):
+    objects = ModelStorageManager("")
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=50)
 

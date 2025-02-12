@@ -92,7 +92,8 @@ class ModelTests(TestCase):
         Party.objects.create(when=datetime.datetime(1999, 12, 31))
         Party.objects.create(when=datetime.datetime(1998, 12, 31))
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
-        Party.objects.create(when=datetime.datetime(1, 3, 3))
+        # SingleStore min value for date is 1000-01-01
+        Party.objects.create(when=datetime.datetime(1000, 3, 3))
         self.assertQuerySetEqual(Party.objects.filter(when__month=2), [])
         self.assertQuerySetEqual(
             Party.objects.filter(when__month=1),
@@ -144,16 +145,16 @@ class ModelTests(TestCase):
 
         # Regression test for #18969
         self.assertQuerySetEqual(
-            Party.objects.filter(when__year=1),
+            Party.objects.filter(when__year=1000),
             [
-                datetime.date(1, 3, 3),
+                datetime.date(1000, 3, 3),
             ],
             attrgetter("when"),
         )
         self.assertQuerySetEqual(
-            Party.objects.filter(when__year="1"),
+            Party.objects.filter(when__year="1000"),
             [
-                datetime.date(1, 3, 3),
+                datetime.date(1000, 3, 3),
             ],
             attrgetter("when"),
         )

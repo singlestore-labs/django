@@ -39,11 +39,20 @@ class Article(models.Model):
 
 
 class Tag(models.Model):
-    articles = models.ManyToManyField(Article)
+    articles = models.ManyToManyField(Article, through="TagArticle")
     name = models.CharField(max_length=100)
 
     class Meta:
         ordering = ("name",)
+
+
+class TagArticle(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('tag', 'article'),)
+        db_table = "lookup_tag_article"
 
 
 class NulledTextField(models.TextField):
@@ -64,14 +73,9 @@ class IsNullWithNoneAsRHS(IsNull):
 
 
 class Season(models.Model):
-    year = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(primary_key=True)
     gt = models.IntegerField(null=True, blank=True)
     nulled_text_field = NulledTextField(null=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["year"], name="season_year_unique"),
-        ]
 
     def __str__(self):
         return str(self.year)
@@ -85,7 +89,16 @@ class Game(models.Model):
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
-    games = models.ManyToManyField(Game, related_name="players")
+    games = models.ManyToManyField(Game, related_name="players", through="PlayerGame")
+
+
+class PlayerGame(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('player', 'game'),)
+        db_table = "lookup_player_game"
 
 
 class Product(models.Model):

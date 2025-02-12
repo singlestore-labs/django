@@ -40,7 +40,16 @@ class MixedCaseIDColumn(models.Model):
 
 
 class Reviewer(models.Model):
-    reviewed = models.ManyToManyField(Book)
+    reviewed = models.ManyToManyField("Book", through="ReviewerBook")
+
+
+class ReviewerBook(models.Model):
+    reviewer = models.ForeignKey(Reviewer, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('reviewer', 'book'),)
+        db_table = "raw_query_reviewer_book"
 
 
 class FriendlyAuthor(Author):

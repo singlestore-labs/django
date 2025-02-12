@@ -184,13 +184,14 @@ class ModelInheritanceTests(TestCase):
             GrandChild().save()
 
         for i, test in enumerate([a, b]):
-            with self.subTest(i=i), self.assertNumQueries(4), CaptureQueriesContext(
+            with self.subTest(i=i), self.assertNumQueries(6), CaptureQueriesContext(
                 connection
             ) as queries:
                 test()
                 for query in queries:
                     sql = query["sql"]
-                    self.assertIn("INSERT INTO", sql, sql)
+                    if sql != "BEGIN" and sql != "COMMIT":
+                        self.assertIn("INSERT INTO", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
         restaurant = Restaurant.objects.create()
