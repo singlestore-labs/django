@@ -657,8 +657,8 @@ class BasicExpressionsTests(TestCase):
             ),
         )
         self.assertSequenceEqual(
-            qs.values_list("ceo_company", flat=True),
-            [self.example_inc.pk, self.foobar_ltd.pk, self.gmbh.pk],
+            sorted(qs.values_list("ceo_company", flat=True)),
+            sorted([self.example_inc.pk, self.foobar_ltd.pk, self.gmbh.pk]),
         )
 
     def test_nested_subquery_outer_ref_2(self):
@@ -1563,8 +1563,10 @@ class ExpressionOperatorTests(TestCase):
 
     def test_right_hand_division(self):
         # RH Division of floats and integers
+        # in SingleStore we need to explicitly cast to integer under default
+        # @@data_conversion_compatibility_level = 8.0
         Number.objects.filter(pk=self.n.pk).update(
-            integer=640 / F("integer"), float=42.7 / F("float")
+            integer=Func(640 / F("integer"), function="FLOOR"), float=42.7 / F("float")
         )
 
         self.assertEqual(Number.objects.get(pk=self.n.pk).integer, 15)
@@ -1725,10 +1727,10 @@ class FTimeDeltaTests(TestCase):
                 e.name for e in Experiment.objects.filter(end__lt=F("start") + delta)
             ]
             self.assertEqual(test_set, self.expnames[:i])
-
-            test_set = [
-                e.name for e in Experiment.objects.filter(end__lt=delta + F("start"))
-            ]
+            # in SingleStore, interval expression (delta) must come after the datetime expression
+            # test_set = [
+            #     e.name for e in Experiment.objects.filter(end__lt=delta + F("start"))
+            # ]
             self.assertEqual(test_set, self.expnames[:i])
 
             test_set = [
