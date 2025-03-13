@@ -3,6 +3,8 @@ import uuid
 
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Author(models.Model):
     name = models.CharField(max_length=100)
@@ -21,6 +23,8 @@ class BetterAuthor(Author):
 class Book(models.Model):
     author = models.ForeignKey(Author, models.CASCADE)
     title = models.CharField(max_length=100)
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("author", "title"),)
@@ -53,6 +57,8 @@ class BookWithOptionalAltEditor(models.Model):
     alt_editor = models.ForeignKey(Editor, models.SET_NULL, blank=True, null=True)
     title = models.CharField(max_length=100)
 
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
+
     class Meta:
         unique_together = (("author", "title", "alt_editor"),)
 
@@ -69,11 +75,20 @@ class AlternateBook(Book):
 
 class AuthorMeeting(models.Model):
     name = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField("Author", through="AuthorMeetingAuthor")
     created = models.DateField(editable=False)
 
     def __str__(self):
         return self.name
+
+
+class AuthorMeetingAuthor(models.Model):
+    authormeeting = models.ForeignKey(AuthorMeeting, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('authormeeting', 'author'),)
+        db_table = "model_formsets_authormeeting_author"
 
 
 class CustomPrimaryKey(models.Model):
@@ -107,6 +122,8 @@ class Location(models.Model):
     lat = models.CharField(max_length=100)
     lon = models.CharField(max_length=100)
 
+    objects = ModelStorageManager("REFERENCE")
+
 
 class OwnerProfile(models.Model):
     owner = models.OneToOneField(Owner, models.CASCADE, primary_key=True)
@@ -121,7 +138,7 @@ class Restaurant(Place):
 
 
 class Product(models.Model):
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(primary_key=True)
 
     def __str__(self):
         return self.slug
@@ -130,6 +147,8 @@ class Product(models.Model):
 class Price(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("price", "quantity"),)
@@ -161,6 +180,8 @@ class Repository(models.Model):
 class Revision(models.Model):
     repository = models.ForeignKey(Repository, models.CASCADE)
     revision = models.CharField(max_length=40)
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("repository", "revision"),)
@@ -254,7 +275,7 @@ class UUIDPKChildOfAutoPKParent(models.Model):
 
 
 class ParentWithUUIDAlternateKey(models.Model):
-    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
 
 
