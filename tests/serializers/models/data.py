@@ -10,6 +10,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 from .base import BaseModel
 
 
@@ -136,6 +138,8 @@ class UniqueAnchor(models.Model):
     something for other models to point at"""
 
     data = models.CharField(unique=True, max_length=30)
+    
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class FKData(models.Model):
@@ -143,7 +147,16 @@ class FKData(models.Model):
 
 
 class M2MData(models.Model):
-    data = models.ManyToManyField(Anchor)
+    data = models.ManyToManyField("Anchor", through="M2MDataAnchor")
+
+
+class M2MDataAnchor(models.Model):
+    m2mdata = models.ForeignKey(M2MData, on_delete=models.CASCADE)
+    anchor = models.ForeignKey(Anchor, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('m2mdata', 'anchor'),)
+        db_table = "serializers_m2mdata_anchor"
 
 
 class O2OData(models.Model):
@@ -156,7 +169,16 @@ class FKSelfData(models.Model):
 
 
 class M2MSelfData(models.Model):
-    data = models.ManyToManyField("self", symmetrical=False)
+    data = models.ManyToManyField("self", symmetrical=False, through="M2MSelfDataFriend")
+
+
+class M2MSelfDataFriend(models.Model):
+    from_m2mselfdata = models.ForeignKey(M2MSelfData, on_delete=models.CASCADE, related_name="from_m2mselfdata")
+    to_m2mselfdata = models.ForeignKey(M2MSelfData, on_delete=models.CASCADE, related_name="to_m2mselfdata")
+
+    class Meta:
+        unique_together = (('from_m2mselfdata', 'to_m2mselfdata'),)
+        db_table = "serializers_m2mselfdata_m2mselfdata"
 
 
 class FKDataToField(models.Model):
@@ -172,9 +194,12 @@ class M2MIntermediateData(models.Model):
 
 
 class Intermediate(models.Model):
-    left = models.ForeignKey(M2MIntermediateData, models.CASCADE)
-    right = models.ForeignKey(Anchor, models.CASCADE)
+    left = models.ForeignKey(M2MIntermediateData, models.CASCADE, related_name="m2mintermediatedata")
+    right = models.ForeignKey(Anchor, models.CASCADE, related_name="anchor")
     extra = models.CharField(max_length=30, blank=True, default="doesn't matter")
+
+    class Meta:
+        db_table = "serializers_m2mintermediatedata_anchor"
 
 
 # The following test classes are for validating the
@@ -219,6 +244,8 @@ class FilePathPKData(models.Model):
 
 class FloatPKData(models.Model):
     data = models.FloatField(primary_key=True)
+    
+    objects = ModelStorageManager("ROWSTORE")
 
 
 class IntegerPKData(models.Model):
