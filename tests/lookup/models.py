@@ -7,6 +7,8 @@ This demonstrates features of the database API.
 from django.db import models
 from django.db.models.lookups import IsNull
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Alarm(models.Model):
     desc = models.CharField(max_length=100)
@@ -30,6 +32,8 @@ class Article(models.Model):
     pub_date = models.DateTimeField()
     author = models.ForeignKey(Author, models.SET_NULL, blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
+    
+    objects = ModelStorageManager("REFERENCE")
 
     class Meta:
         ordering = ("-pub_date", "headline")
