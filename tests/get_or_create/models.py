@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=100, unique=True)
+    first_name = models.CharField(max_length=100, primary_key=True)
     last_name = models.CharField(max_length=100)
     birthday = models.DateField()
     defaults = models.TextField()
@@ -22,7 +22,7 @@ class Profile(models.Model):
 
 
 class Tag(models.Model):
-    text = models.CharField(max_length=255, unique=True)
+    text = models.CharField(max_length=255, primary_key=True)
 
 
 class Thing(models.Model):
