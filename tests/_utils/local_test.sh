@@ -18,5 +18,5 @@ export TABLE_STORAGE_TYPE_PREFETCH_RELATED="ROWSTORE REFERENCE"
 export TABLE_STORAGE_TYPE_MANY_TO_MANY="ROWSTORE REFERENCE"
 
 # specify the path to the test to run
-MODULE_TO_TEST=get_or_create
+MODULE_TO_TEST=serializers
 ./tests/runtests.py --settings=singlestore_settings --noinput -v 3 $MODULE_TO_TEST --keepdb

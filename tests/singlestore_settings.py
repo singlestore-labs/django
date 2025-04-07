@@ -8,7 +8,7 @@ DATABASES = {
         "HOST": "127.0.0.1",
         "PORT": 3306,
         "USER": "root",
-        "PASSWORD": "",
+        "PASSWORD": "p",
         "NAME": "django_db",
     },
     "other": {
@@ -16,7 +16,7 @@ DATABASES = {
         "HOST": "127.0.0.1",
         "PORT": 3306,
         "USER": "root",
-        "PASSWORD": "",
+        "PASSWORD": "p",
         "NAME": "django_db_other",
     },
 }
