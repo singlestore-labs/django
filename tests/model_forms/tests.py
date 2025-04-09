@@ -2944,9 +2944,9 @@ class OtherModelFormTests(TestCase):
 
         class ColorModelChoiceField(forms.ModelChoiceField):
             def label_from_instance(self, obj):
-                return ", ".join(c.name for c in obj.colours.all())
+                return ", ".join(sorted(c.name for c in obj.colours.all()))
 
-        field = ColorModelChoiceField(ColourfulItem.objects.prefetch_related("colours"))
+        field = ColorModelChoiceField(ColourfulItem.objects.prefetch_related("colours").order_by("id"))
         with self.assertNumQueries(3):  # would be 4 if prefetch is ignored
             self.assertEqual(
                 tuple(field.choices),

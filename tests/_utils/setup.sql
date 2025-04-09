@@ -242,7 +242,7 @@ CREATE TABLE `delete_regress_played_with` (
   KEY (`toy_id`)
 );
 
-CREATE TABLE `delete_regress_researcher_contacts` (
+CREATE TABLE `delete_regress_researcher_contact` (
   `researcher_id` BIGINT NOT NULL,
   `contact_id` BIGINT NOT NULL,
   SHARD KEY (`researcher_id`),
