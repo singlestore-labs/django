@@ -5,6 +5,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import SiteManager
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Site(models.Model):
     domain = models.CharField(max_length=100)
@@ -46,8 +48,9 @@ class FooWithoutUrl(models.Model):
     Fake model not defining ``get_absolute_url`` for
     ContentTypesTests.test_shortcut_view_without_get_absolute_url()
     """
-
     name = models.CharField(max_length=30, unique=True)
+
+    objects = ModelStorageManager("REFERENCE")
 
 
 class FooWithUrl(FooWithoutUrl):
@@ -108,7 +111,16 @@ class ModelWithNullFKToSite(models.Model):
 
 class ModelWithM2MToSite(models.Model):
     title = models.CharField(max_length=200)
-    sites = models.ManyToManyField(Site)
+    sites = models.ManyToManyField("Site", through="ModelWithM2MToSiteSite")
 
     def get_absolute_url(self):
         return "/title/%s/" % quote(self.title)
+
+
+class ModelWithM2MToSiteSite(models.Model):
+    modelwithm2mtosite = models.ForeignKey(ModelWithM2MToSite, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('modelwithm2mtosite', 'site'),)
+        db_table = "contenttypes_tests_modelwithm2mtosite_site"
