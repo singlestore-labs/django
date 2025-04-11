@@ -8,10 +8,10 @@ class Person(models.Model):
 
 class PersonFriend(models.Model):
     from_person = models.ForeignKey(
-        Person, on_delete=models.CASCADE, related_name="friends_from"
+        Person, on_delete=models.CASCADE, related_name="from_person"
     )
     to_person = models.ForeignKey(
-        Person, on_delete=models.CASCADE, related_name="friends_to"
+        Person, on_delete=models.CASCADE, related_name="to_person"
     )
 
     class Meta:
