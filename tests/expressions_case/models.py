@@ -41,7 +41,7 @@ class CaseTestModel(models.Model):
 
 
 class O2OCaseTestModel(models.Model):
-    o2o = models.OneToOneField(CaseTestModel, models.CASCADE, related_name="o2o_rel")
+    o2o = models.OneToOneField(CaseTestModel, models.CASCADE, primary_key=True, related_name="o2o_rel")
     integer = models.IntegerField()
 
 
