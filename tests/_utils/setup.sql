@@ -410,7 +410,7 @@ CREATE TABLE `serializers_m2mintermediatedata_anchor` (
   KEY (`anchor_id`)
 );
 
---update_only_fields
+-- update_only_fields
 CREATE TABLE `update_only_fields_employee_account` (
   `employee_id` BIGINT NOT NULL,
   `account_id` BIGINT NOT NULL,
@@ -430,7 +430,7 @@ CREATE TABLE `contenttypes_tests_modelwithm2mtosite_site` (
   KEY (`site_id`)
 );
 
---test_runner
+-- test_runner
 CREATE TABLE `test_runner_person_friend` (
   `from_person_id` BIGINT NOT NULL,
   `to_person_id` BIGINT NOT NULL,
@@ -438,4 +438,23 @@ CREATE TABLE `test_runner_person_friend` (
   UNIQUE KEY (`from_person_id`, `to_person_id`),
   KEY (`from_person_id`),
   KEY (`to_person_id`)
+);
+
+-- model_fields
+CREATE TABLE `model_fields_manytomany_manytomany` (
+  `from_manytomany_id` BIGINT NOT NULL,
+  `to_manytomany_id` BIGINT NOT NULL,
+  SHARD KEY (`from_manytomany_id`),
+  UNIQUE KEY (`from_manytomany_id`, `to_manytomany_id`),
+  KEY (`from_manytomany_id`),
+  KEY (`to_manytomany_id`)
+);
+
+CREATE TABLE `model_fields_allfieldsmodel_allfieldsmodel` (
+  `from_allfieldsmodel_id` BIGINT NOT NULL,
+  `to_allfieldsmodel_id` BIGINT NOT NULL,
+  SHARD KEY (`from_allfieldsmodel_id`),
+  UNIQUE KEY (`from_allfieldsmodel_id`, `to_allfieldsmodel_id`),
+  KEY (`from_allfieldsmodel_id`),
+  KEY (`to_allfieldsmodel_id`)
 );
