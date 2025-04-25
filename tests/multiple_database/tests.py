@@ -916,7 +916,7 @@ class QueryTestCase(TestCase):
             ["alice"],
         )
         self.assertEqual(
-            list(User.objects.using("other").values_list("username", flat=True)),
+            sorted(list(User.objects.using("other").values_list("username", flat=True))),
             ["bob", "charlie"],
         )
         self.assertEqual(
@@ -1941,10 +1941,12 @@ class AuthTestCase(TestCase):
         self.assertEqual(User.objects.using("default").count(), 1)
         self.assertEqual(User.objects.using("other").count(), 1)
 
+    # This test assumed the users alice and bob do not exist in the database
+    # before the test is run. If they do, the test will fail.
     def test_dumpdata(self):
         "dumpdata honors allow_migrate restrictions on the router"
         User.objects.create_user("alice", "alice@example.com")
-        User.objects.db_manager("default").create_user("bob", "bob@example.com")
+        User.objects.db_manager("default").get_or_create(username="bob", defaults={"email": "bob@example.com"})
 
         # dumping the default database doesn't try to include auth because
         # allow_migrate prohibits auth on default
