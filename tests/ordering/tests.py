@@ -613,12 +613,11 @@ class OrderingTests(TestCase):
             [g1, g2, g3],
         )
 
-    def test_order_by_expression_ref(self):
         self.assertQuerySetEqual(
             Author.objects.annotate(upper_name=Upper("name")).order_by(
-                Length("upper_name")
+                Length("upper_name"), "pk"
             ),
-            Author.objects.order_by(Length(Upper("name"))),
+            Author.objects.order_by(Length(Upper("name")), "pk"),
         )
 
     def test_ordering_select_related_collision(self):
