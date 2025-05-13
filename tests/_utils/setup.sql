@@ -506,8 +506,8 @@ CREATE TABLE `aggregation_regress_recipe_authorproxy` (
   KEY (`authorproxy_id`)
 );
 
---generic_relations_regress
-CREATE TABLE `organization_contact` (
+-- generic_relations_regress
+CREATE TABLE `generic_relations_regress_organization_contact` (
   `organization_id` BIGINT NOT NULL,
   `contact_id` BIGINT NOT NULL,
   SHARD KEY (`organization_id`),

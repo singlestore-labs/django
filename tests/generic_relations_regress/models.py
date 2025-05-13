@@ -105,7 +105,7 @@ class OrganizationContact(models.Model):
 
     class Meta:
         unique_together = (('organization', 'contact'),)
-        db_table = "organization_contact"
+        db_table = "generic_relations_regress_organization_contact"
 
 
 class Company(models.Model):
