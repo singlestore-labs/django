@@ -6,6 +6,7 @@ To define a many-to-one relationship that can have a null foreign key, use
 """
 
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Reporter(models.Model):
@@ -25,6 +26,7 @@ class Article(models.Model):
 
 class Car(models.Model):
     make = models.CharField(max_length=100, null=True, unique=True)
+    objects = ModelStorageManager("REFERENCE")
 
 
 class Driver(models.Model):
