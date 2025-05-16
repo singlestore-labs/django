@@ -19,12 +19,6 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Article",
             fields=[
-                (
-                    "authors",
-                    models.ManyToManyField(
-                        "db_functions.Author", related_name="articles"
-                    ),
-                ),
                 ("title", models.CharField(max_length=50)),
                 ("summary", models.CharField(max_length=200, null=True, blank=True)),
                 ("text", models.TextField()),
@@ -33,6 +27,37 @@ class Migration(migrations.Migration):
                 ("updated", models.DateTimeField(null=True, blank=True)),
                 ("views", models.PositiveIntegerField(default=0)),
             ],
+        ),
+        migrations.CreateModel(
+            name="ArticleAuthor",
+            fields=[
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE, to="db_functions.article"
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=models.CASCADE, to="db_functions.author"
+                    ),
+                ),
+            ],
+            options={
+                "managed": False,
+                "db_table": "db_functions_article_author",
+                "unique_together": {("article", "author")},
+            },
+        ),
+        migrations.AddField(
+            model_name="article",
+            name="authors",
+            field=models.ManyToManyField(
+                related_name="articles",
+                through="db_functions.ArticleAuthor",
+                to="db_functions.author",
+            ),
         ),
         migrations.CreateModel(
             name="Fan",

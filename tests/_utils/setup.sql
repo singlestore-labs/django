@@ -517,7 +517,7 @@ CREATE TABLE `generic_relations_regress_organization_contact` (
 );
 
 -- db_functions
-CREATE TABLE `db_functions_article_authors` (
+CREATE TABLE `db_functions_article_author` (
   `article_id` BIGINT NOT NULL,
   `author_id` BIGINT NOT NULL,
   SHARD KEY (`article_id`),
