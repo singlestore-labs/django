@@ -15,6 +15,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Category(models.Model):
     title = models.CharField(max_length=100)
@@ -44,11 +46,19 @@ class Blog(models.Model):
         Article, models.CASCADE, related_name="fixtures_featured_set"
     )
     articles = models.ManyToManyField(
-        Article, blank=True, related_name="fixtures_articles_set"
-    )
+        Article, blank=True, related_name="fixtures_articles_set", through="BlogArticle")
 
     def __str__(self):
         return self.name
+
+
+class BlogArticle(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('blog', 'article'),)
+        db_table = "fixtures_blog_article"
 
 
 class Tag(models.Model):
@@ -74,7 +84,7 @@ class PersonManager(models.Manager):
 
 class Person(models.Model):
     objects = PersonManager()
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, primary_key=True)
 
     class Meta:
         ordering = ("name",)
@@ -103,7 +113,7 @@ class ProxySpy(Spy):
 
 class Visa(models.Model):
     person = models.ForeignKey(Person, models.CASCADE)
-    permissions = models.ManyToManyField(Permission, blank=True)
+    permissions = models.ManyToManyField(Permission, blank=True, through="VisaPermission")
 
     def __str__(self):
         return "%s %s" % (
@@ -112,9 +122,18 @@ class Visa(models.Model):
         )
 
 
+class VisaPermission(models.Model):
+    visa = models.ForeignKey(Visa, on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('visa', 'permission'),)
+        db_table = "fixtures_visa_permission"
+
+
 class Book(models.Model):
     name = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Person)
+    authors = models.ManyToManyField(Person, through="BookPerson")
 
     class Meta:
         ordering = ("name",)
@@ -122,6 +141,15 @@ class Book(models.Model):
     def __str__(self):
         authors = " and ".join(a.name for a in self.authors.all())
         return "%s by %s" % (self.name, authors) if authors else self.name
+
+
+class BookPerson(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'person'),)
+        db_table = "fixtures_book_person"
 
 
 class PrimaryKeyUUIDModel(models.Model):
@@ -139,10 +167,11 @@ class NaturalKeyThing(models.Model):
         "NaturalKeyThing", on_delete=models.CASCADE, null=True
     )
     other_things = models.ManyToManyField(
-        "NaturalKeyThing", related_name="thing_m2m_set"
-    )
+        "NaturalKeyThing", related_name="thing_m2m_set", through="NaturalKeyThingNaturalKeyThing")
 
     objects = NaturalKeyManager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
+
 
     def natural_key(self):
         return (self.key,)
@@ -151,11 +180,22 @@ class NaturalKeyThing(models.Model):
         return self.key
 
 
+class NaturalKeyThingNaturalKeyThing(models.Model):
+    from_naturalkeything = models.ForeignKey(NaturalKeyThing, on_delete=models.CASCADE, related_name="from_naturalkeything")
+    to_naturalkeything = models.ForeignKey(NaturalKeyThing, on_delete=models.CASCADE, related_name="to_naturalkeything")
+
+    class Meta:
+        unique_together = (('from_naturalkeything', 'to_naturalkeything'),)
+        db_table = "fixtures_naturalkeything_naturalkeything"
+
+
 class CircularA(models.Model):
     key = models.CharField(max_length=3, unique=True)
     obj = models.ForeignKey("CircularB", models.SET_NULL, null=True)
 
     objects = NaturalKeyManager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
+ 
 
     def natural_key(self):
         return (self.key,)
@@ -166,6 +206,8 @@ class CircularB(models.Model):
     obj = models.ForeignKey("CircularA", models.SET_NULL, null=True)
 
     objects = NaturalKeyManager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
+
 
     def natural_key(self):
         return (self.key,)
