@@ -12,7 +12,7 @@ class Author(models.Model):
 
 
 class Article(models.Model):
-    authors = models.ManyToManyField(Author, related_name="articles")
+    authors = models.ManyToManyField("Author", related_name="articles", through="ArticleAuthor")
     title = models.CharField(max_length=50)
     summary = models.CharField(max_length=200, null=True, blank=True)
     text = models.TextField()
@@ -20,6 +20,15 @@ class Article(models.Model):
     published = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
     views = models.PositiveIntegerField(default=0)
+
+
+class ArticleAuthor(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'author'),)
+        db_table = "db_functions_article_authors"
 
 
 class Fan(models.Model):
