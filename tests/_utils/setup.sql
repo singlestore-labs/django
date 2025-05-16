@@ -515,3 +515,13 @@ CREATE TABLE `generic_relations_regress_organization_contact` (
   KEY (`organization_id`),
   KEY (`contact_id`)
 );
+
+-- db_functions
+CREATE TABLE `db_functions_article_authors` (
+  `article_id` BIGINT NOT NULL,
+  `author_id` BIGINT NOT NULL,
+  SHARD KEY (`article_id`),
+  UNIQUE KEY (`article_id`, `author_id`),
+  KEY (`article_id`),
+  KEY (`author_id`)
+);
