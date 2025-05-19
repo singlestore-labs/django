@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils import timezone
+from django_singlestore.schema import ModelStorageManager
 
 try:
     from PIL import Image
@@ -15,6 +16,8 @@ class Country(models.Model):
     name = models.CharField(max_length=255)
     iso_two_letter = models.CharField(max_length=2)
     description = models.TextField()
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         constraints = [
@@ -66,18 +69,23 @@ class State(models.Model):
 class TwoFields(models.Model):
     f1 = models.IntegerField(unique=True)
     f2 = models.IntegerField(unique=True)
+    objects = ModelStorageManager("REFERENCE")
     name = models.CharField(max_length=15, null=True)
 
 
 class FieldsWithDbColumns(models.Model):
     rank = models.IntegerField(unique=True, db_column="rAnK")
     name = models.CharField(max_length=15, null=True, db_column="oTheRNaMe")
+    objects = ModelStorageManager("REFERENCE")
+    
 
 
 class UpsertConflict(models.Model):
     number = models.IntegerField(unique=True)
     rank = models.IntegerField()
     name = models.CharField(max_length=15)
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class NoFields(models.Model):
@@ -140,4 +148,13 @@ class NullableFields(models.Model):
 class RelatedModel(models.Model):
     name = models.CharField(max_length=15, null=True)
     country = models.OneToOneField(Country, models.CASCADE, primary_key=True)
-    big_auto_fields = models.ManyToManyField(BigAutoFieldModel)
+    big_auto_fields = models.ManyToManyField("BigAutoFieldModel", through="RelatedModelBigAutoFieldModel")
+
+
+class RelatedModelBigAutoFieldModel(models.Model):
+    relatedmodel = models.ForeignKey(RelatedModel, on_delete=models.CASCADE)
+    bigautofieldmodel = models.ForeignKey(BigAutoFieldModel, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('relatedmodel', 'bigautofieldmodel'),)
+        db_table = "bulk_create_relatedmodel_bigautofieldmodel"
