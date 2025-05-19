@@ -28,7 +28,7 @@ class ArticleAuthor(models.Model):
 
     class Meta:
         unique_together = (('article', 'author'),)
-        db_table = "db_functions_article_authors"
+        db_table = "db_functions_article_author"
 
 
 class Fan(models.Model):

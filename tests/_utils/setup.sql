@@ -602,7 +602,7 @@ CREATE TABLE `delete_player_game` (
 );
 
 -- db_functions
-CREATE TABLE `db_functions_article_authors` (
+CREATE TABLE `db_functions_article_author` (
   `article_id` BIGINT NOT NULL,
   `author_id` BIGINT NOT NULL,
   SHARD KEY (`article_id`),
