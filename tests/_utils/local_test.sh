@@ -34,5 +34,5 @@ export DJANGO_SINGLESTORE_NOT_ENFORCED_UNIQUE_QUERIES=1
 
 
 # specify the path to the test to run
-MODULE_TO_TEST=""
+MODULE_TO_TEST="backends"
 ./tests/runtests.py --settings=singlestore_settings --noinput -v 3 $MODULE_TO_TEST --keepdb
