@@ -570,6 +570,7 @@ CREATE TABLE `bulk_create_relatedmodel_bigautofieldmodel` (
   UNIQUE KEY (`relatedmodel_id`, `bigautofieldmodel_id`),
   KEY (`relatedmodel_id`),
   KEY (`bigautofieldmodel_id`)
+);
 
 -- backends
 CREATE TABLE `backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person` (

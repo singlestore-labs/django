@@ -40,7 +40,8 @@ class VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ(models.Model):
         max_length=100
     )
     m2m_also_quite_long_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = (
-        models.ManyToManyField("Person", blank=True, through="VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZPerson")
+        models.ManyToManyField(Person, blank=True,
+                               through="VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZPerson")
     )
 
 
@@ -113,7 +114,7 @@ class Item(models.Model):
 
 class Object(models.Model):
     related_objects = models.ManyToManyField(
-        "Object", symmetrical=False, through="ObjectFriend"
+        "self", symmetrical=False, through="ObjectFriend"
         )
     obj_ref = models.ForeignKey("ObjectReference", models.CASCADE, null=True)
 
