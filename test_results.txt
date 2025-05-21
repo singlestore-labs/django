@@ -182,7 +182,7 @@ test_zero_as_autoval (backends.tests.MySQLPKZeroTests.test_zero_as_autoval) ... 
 test_bad_parameter_count (backends.tests.ParameterHandlingTest.test_bad_parameter_count)
 An executemany call with too many/not enough parameters will raise an ... ok
 test_generic_relation (backends.tests.SequenceResetTest.test_generic_relation)
-Sequence names are correct when resetting generic relations (Ref #13941) ... FAIL
+Sequence names are correct when resetting generic relations (Ref #13941) ... ok
 test_health_checks_disabled (backends.base.test_base.ConnectionHealthChecksTests.test_health_checks_disabled) ... ok
 test_health_checks_enabled (backends.base.test_base.ConnectionHealthChecksTests.test_health_checks_enabled) ... ok
 test_health_checks_enabled_errors_occurred (backends.base.test_base.ConnectionHealthChecksTests.test_health_checks_enabled_errors_occurred) ... ok
@@ -207,9 +207,9 @@ test_custom_test_name (backends.base.test_creation.TestDbSignatureTests.test_cus
 test_custom_test_name_with_test_prefix (backends.base.test_creation.TestDbSignatureTests.test_custom_test_name_with_test_prefix) ... ok
 test_default_name (backends.base.test_creation.TestDbSignatureTests.test_default_name) ... ok
 test_circular_reference (backends.base.test_creation.TestDeserializeDbFromString.test_circular_reference) ... ok
-test_circular_reference_with_natural_key (backends.base.test_creation.TestDeserializeDbFromString.test_circular_reference_with_natural_key) ... ERROR
-test_self_reference (backends.base.test_creation.TestDeserializeDbFromString.test_self_reference) ... ERROR
-test_serialize_db_to_string_base_manager (backends.base.test_creation.TestDeserializeDbFromString.test_serialize_db_to_string_base_manager) ... ERROR
+test_circular_reference_with_natural_key (backends.base.test_creation.TestDeserializeDbFromString.test_circular_reference_with_natural_key) ... skipped 'Many-to-many intermediate tables (unless REFERENCE) in SingleStore must be built without id column, but certain django functionality requires id column to be present'
+test_self_reference (backends.base.test_creation.TestDeserializeDbFromString.test_self_reference) ... skipped 'Many-to-many intermediate tables (unless REFERENCE) in SingleStore must be built without id column, but certain django functionality requires id column to be present'
+test_serialize_db_to_string_base_manager (backends.base.test_creation.TestDeserializeDbFromString.test_serialize_db_to_string_base_manager) ... skipped 'Many-to-many intermediate tables (unless REFERENCE) in SingleStore must be built without id column, but certain django functionality requires id column to be present'
 test_mark_expected_failures_and_skips (backends.base.test_creation.TestMarkTests.test_mark_expected_failures_and_skips) ... ok
 test_nonexistent_feature (backends.base.test_features.TestDatabaseFeatures.test_nonexistent_feature) ... ok
 test_get_constraints (backends.base.test_introspection.SimpleDatabaseIntrospectionTests.test_get_constraints) ... ok
@@ -245,7 +245,7 @@ test_sql_flush (backends.base.test_operations.SimpleDatabaseOperationTests.test_
 test_tablespace_sql (backends.base.test_operations.SimpleDatabaseOperationTests.test_tablespace_sql) ... ok
 test_time_extract_sql (backends.base.test_operations.SimpleDatabaseOperationTests.test_time_extract_sql) ... ok
 test_time_trunc_sql (backends.base.test_operations.SimpleDatabaseOperationTests.test_time_trunc_sql) ... ok
-test_execute_sql_flush_statements (backends.base.test_operations.SqlFlushTests.test_execute_sql_flush_statements) ... FAIL
+test_execute_sql_flush_statements (backends.base.test_operations.SqlFlushTests.test_execute_sql_flush_statements) ... ok
 test_sql_flush_no_tables (backends.base.test_operations.SqlFlushTests.test_sql_flush_no_tables) ... ok
 test_effective_default_callable (backends.base.test_schema.SchemaEditorTests.test_effective_default_callable)
 SchemaEditor.effective_default() shouldn't call callable defaults. ... ok
@@ -350,7 +350,7 @@ DatabaseOperations initialization doesn't query the database. ... ok
 test_duplicate_table_error (backends.tests.BackendTestCase.test_duplicate_table_error)
 Creating an existing table returns a DatabaseError ... ok
 test_is_usable_after_database_disconnects (backends.tests.BackendTestCase.test_is_usable_after_database_disconnects)
-is_usable() doesn't crash when the database disconnects (#21553). ... FAIL
+is_usable() doesn't crash when the database disconnects (#21553). ... ok
 test_queries (backends.tests.BackendTestCase.test_queries)
 Test the documented API of connection.queries. ... ok
 test_queries_bare_where (backends.tests.BackendTestCase.test_queries_bare_where) ... ok
@@ -389,300 +389,33 @@ A connection can be passed from one thread to the other (#17258). ... ok
 test_thread_sharing_count (backends.tests.ThreadTests.test_thread_sharing_count) ... ok
 
 ======================================================================
-ERROR: test_circular_reference_with_natural_key (backends.base.test_creation.TestDeserializeDbFromString.test_circular_reference_with_natural_key)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-singlestoredb.exceptions.OperationalError: 1054: Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/base/test_creation.py", line 232, in test_circular_reference_with_natural_key
-    data = connection.creation.serialize_db_to_string()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 142, in serialize_db_to_string
-    serializers.serialize("json", get_objects(), indent=None, stream=out)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/__init__.py", line 134, in serialize
-    s.serialize(queryset, **options)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/base.py", line 132, in serialize
-    for count, obj in enumerate(queryset, start=1):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 138, in get_objects
-    yield from queryset.iterator()
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 516, in _iterator
-    yield from iterable
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/sql/compiler.py", line 1562, in execute_sql
-    cursor.execute(sql, params)
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 67, in execute
-    return self._execute_with_wrappers(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 80, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 84, in _execute
-    with self.db.wrap_database_errors:
-  File "/home/pmishchenko-ua/github.com/django/django/db/utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-django.db.utils.OperationalError: (1054, "Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'", None)
-
-======================================================================
-ERROR: test_self_reference (backends.base.test_creation.TestDeserializeDbFromString.test_self_reference)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-singlestoredb.exceptions.OperationalError: 1054: Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/base/test_creation.py", line 210, in test_self_reference
-    data = connection.creation.serialize_db_to_string()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 142, in serialize_db_to_string
-    serializers.serialize("json", get_objects(), indent=None, stream=out)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/__init__.py", line 134, in serialize
-    s.serialize(queryset, **options)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/base.py", line 132, in serialize
-    for count, obj in enumerate(queryset, start=1):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 138, in get_objects
-    yield from queryset.iterator()
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 516, in _iterator
-    yield from iterable
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/sql/compiler.py", line 1562, in execute_sql
-    cursor.execute(sql, params)
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 67, in execute
-    return self._execute_with_wrappers(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 80, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 84, in _execute
-    with self.db.wrap_database_errors:
-  File "/home/pmishchenko-ua/github.com/django/django/db/utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-django.db.utils.OperationalError: (1054, "Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'", None)
-
-======================================================================
-ERROR: test_serialize_db_to_string_base_manager (backends.base.test_creation.TestDeserializeDbFromString.test_serialize_db_to_string_base_manager)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-singlestoredb.exceptions.OperationalError: 1054: Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/base/test_creation.py", line 249, in test_serialize_db_to_string_base_manager
-    data = connection.creation.serialize_db_to_string()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 142, in serialize_db_to_string
-    serializers.serialize("json", get_objects(), indent=None, stream=out)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/__init__.py", line 134, in serialize
-    s.serialize(queryset, **options)
-  File "/home/pmishchenko-ua/github.com/django/django/core/serializers/base.py", line 132, in serialize
-    for count, obj in enumerate(queryset, start=1):
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/base/creation.py", line 138, in get_objects
-    yield from queryset.iterator()
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 516, in _iterator
-    yield from iterable
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/models/sql/compiler.py", line 1562, in execute_sql
-    cursor.execute(sql, params)
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 67, in execute
-    return self._execute_with_wrappers(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 80, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 84, in _execute
-    with self.db.wrap_database_errors:
-  File "/home/pmishchenko-ua/github.com/django/django/db/utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 89, in _execute
-    return self.cursor.execute(sql, params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
-    return self.cursor.execute(query, args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
-    result = self._query(query, infile_stream=infile_stream)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
-    conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
-    result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
-    packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
-    raise errorclass(errno, errval)
-django.db.utils.OperationalError: (1054, "Unknown column 'backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person.id' in 'field list'", None)
-
-======================================================================
 ERROR: test_callproc_with_int_params (backends.test_utils.CursorWrapperTests.test_callproc_with_int_params)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 87, in _execute
     return self.cursor.execute(sql)
            ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
     return self.cursor.execute(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
     result = self._query(query, infile_stream=infile_stream)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
     conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
     self._affected_rows = self._read_query_result(unbuffered=unbuffered)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
     result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
     first_packet = self.connection._read_packet()
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
     packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
     err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
     raise errorclass(errno, errval)
 singlestoredb.exceptions.OperationalError: 1982: Function 'test_procedure' already exists
 
@@ -709,27 +442,27 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 87, in _execute
     return self.cursor.execute(sql)
            ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
     return self.cursor.execute(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
     result = self._query(query, infile_stream=infile_stream)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
     conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
     self._affected_rows = self._read_query_result(unbuffered=unbuffered)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
     result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
     first_packet = self.connection._read_packet()
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
     packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
     err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
     raise errorclass(errno, errval)
 django.db.utils.OperationalError: (1982, "Function 'test_procedure' already exists", None)
 
@@ -740,27 +473,27 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 87, in _execute
     return self.cursor.execute(sql)
            ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
     return self.cursor.execute(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
     result = self._query(query, infile_stream=infile_stream)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
     conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
     self._affected_rows = self._read_query_result(unbuffered=unbuffered)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
     result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
     first_packet = self.connection._read_packet()
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
     packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
     err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
     raise errorclass(errno, errval)
 singlestoredb.exceptions.OperationalError: 1982: Function 'test_procedure' already exists
 
@@ -787,27 +520,27 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 87, in _execute
     return self.cursor.execute(sql)
            ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 63, in execute
     return self.cursor.execute(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 218, in execute
     result = self._query(query, infile_stream=infile_stream)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 403, in _query
     conn.query(q, infile_stream=infile_stream)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 918, in query
     self._affected_rows = self._read_query_result(unbuffered=unbuffered)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1295, in _read_query_result
     result.read()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1706, in read
     first_packet = self.connection._read_packet()
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/connection.py", line 1249, in _read_packet
     packet.raise_for_error()
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/protocol.py", line 237, in raise_for_error
     err.raise_mysql_exception(self._data)
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/err.py", line 92, in raise_mysql_exception
     raise errorclass(errno, errval)
 django.db.utils.OperationalError: (1982, "Function 'test_procedure' already exists", None)
 
@@ -830,10 +563,10 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 94, in _executemany
     return self.cursor.executemany(sql, param_list)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 73, in executemany
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 73, in executemany
     return self.cursor.executemany(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 242, in executemany
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 242, in executemany
     if args is None or len(args) == 0:
                        ^^^^^^^^^
 TypeError: object of type 'generator' has no len()
@@ -845,10 +578,13 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/test/testcases.py", line 1602, in skip_wrapper
     return test_func(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/tests.py", line 372, in test_cursor_executemany_with_pyformat_iterator
+  File "/home/pmishchenko-ua/github.com/django/tests/backends/tests.py", line 378, in test_cursor_executemany_with_pyformat_iterator
     self.create_squares(args, "pyformat", multiple=True)
   File "/home/pmishchenko-ua/github.com/django/tests/backends/tests.py", line 321, in create_squares
     cursor.executemany(query, args)
+  File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 106, in executemany
+    return super().executemany(sql, param_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 72, in executemany
     return self._execute_with_wrappers(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -858,46 +594,17 @@ Traceback (most recent call last):
   File "/home/pmishchenko-ua/github.com/django/django/db/backends/utils.py", line 94, in _executemany
     return self.cursor.executemany(sql, param_list)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/django_singlestore/base.py", line 73, in executemany
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/django_singlestore/base.py", line 73, in executemany
     return self.cursor.executemany(query, args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/envs/django-test/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 242, in executemany
+  File "/home/pmishchenko-ua/.pyenv/versions/3.11.9/lib/python3.11/site-packages/singlestoredb/mysql/cursors.py", line 242, in executemany
     if args is None or len(args) == 0:
                        ^^^^^^^^^
 TypeError: object of type 'generator' has no len()
 
-======================================================================
-FAIL: test_generic_relation (backends.tests.SequenceResetTest.test_generic_relation)
-Sequence names are correct when resetting generic relations (Ref #13941)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/tests.py", line 244, in test_generic_relation
-    self.assertGreater(obj.pk, 10)
-AssertionError: 2 not greater than 10
+Ran 294 tests in 4.602s
 
-======================================================================
-FAIL: test_execute_sql_flush_statements (backends.base.test_operations.SqlFlushTests.test_execute_sql_flush_statements)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/base/test_operations.py", line 220, in test_execute_sql_flush_statements
-    self.assertEqual(author.pk, 1)
-AssertionError: 'F. Scott Fitzgerald' != 1
-
-======================================================================
-FAIL: test_is_usable_after_database_disconnects (backends.tests.BackendTestCase.test_is_usable_after_database_disconnects)
-is_usable() doesn't crash when the database disconnects (#21553).
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/pmishchenko-ua/github.com/django/django/test/testcases.py", line 1602, in skip_wrapper
-    return test_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/pmishchenko-ua/github.com/django/tests/backends/tests.py", line 486, in test_is_usable_after_database_disconnects
-    self.assertFalse(connection.is_usable())
-AssertionError: True is not false
-
-----------------------------------------------------------------------
-Ran 294 tests in 5.481s
-
-FAILED (failures=3, errors=7, skipped=130)
+FAILED (errors=4, skipped=133)
 Preserving test database for alias 'default' ('test_django_db')...
 Preserving test database for alias 'other' ('test_django_db_other')...
