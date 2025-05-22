@@ -2,6 +2,7 @@
 from decimal import Decimal, Rounded
 
 from django.db import NotSupportedError, connection
+from django.db.utils import OperationalError
 from django.db.backends.utils import (
     format_number,
     split_identifier,
@@ -94,6 +95,12 @@ class CursorWrapperTests(TransactionTestCase):
     available_apps = []
 
     def _test_procedure(self, procedure_sql, params, param_types, kparams=None):
+        # make sure procedure is not already defined
+        try:
+            with connection.schema_editor() as editor:
+                editor.remove_procedure("test_procedure", param_types)
+        except OperationalError:
+            pass
         with connection.cursor() as cursor:
             cursor.execute(procedure_sql)
         # Use a new cursor because in MySQL a procedure can't be used in the
