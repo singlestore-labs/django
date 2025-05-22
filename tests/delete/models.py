@@ -2,6 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class P(models.Model):
     pass
@@ -241,3 +243,26 @@ class GenericDeleteBottomParent(models.Model):
     generic_delete_bottom = models.ForeignKey(
         GenericDeleteBottom, on_delete=models.CASCADE
     )
+
+
+class Game(models.Model):
+    home = models.CharField(max_length=100)
+    away = models.CharField(max_length=100)
+
+    objects = ModelStorageManager("ROWSTORE")
+
+
+class Player(models.Model):
+    name = models.CharField(max_length=100)
+    games = models.ManyToManyField(Game, related_name="players", through="PlayerGame")
+    
+    objects = ModelStorageManager("ROWSTORE")
+
+
+class PlayerGame(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('player', 'game'),)
+        db_table = "delete_player_game"

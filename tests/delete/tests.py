@@ -37,6 +37,8 @@ from .models import (
     S,
     T,
     User,
+    Game,
+    Player,
     create_a,
     get_default_r,
 )
@@ -800,3 +802,17 @@ class FastDeleteTests(TestCase):
         with self.assertNumQueries(1):
             User.objects.filter(~Q(pk__in=[]) | Q(avatar__desc="foo")).delete()
         self.assertFalse(User.objects.exists())
+
+    def test_delete_with_custom_m2m(self):
+        """
+        Test that deletion of a model with a custom through model
+        that doesn't have id field works correctly.
+        """
+        g1 = Game.objects.create()
+        g2 = Game.objects.create()
+
+        player = Player.objects.create()
+        player.games.add(g1, g2)
+        g1.delete()
+        g2.delete()
+        self.assertFalse(Game.objects.exists())
