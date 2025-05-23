@@ -29,6 +29,10 @@ export DJANGO_SINGLESTORE_TABLE_STORAGE_TYPE_MANY_TO_MANY="ROWSTORE REFERENCE"
 # a number of models with unique keys, 13 many-to-many fields
 export DJANGO_SINGLESTORE_TABLE_STORAGE_TYPE_FIXTURES_REGRESS="ROWSTORE REFERENCE"
 
+# a model with 3 many-to-many fields caused issues
+export DJANGO_SINGLESTORE_TABLE_STORAGE_TYPE_DELETE="ROWSTORE REFERENCE"
+
+
 # queries app has a lot of models with OneToOne relationships
 export DJANGO_SINGLESTORE_NOT_ENFORCED_UNIQUE_QUERIES=1
 
