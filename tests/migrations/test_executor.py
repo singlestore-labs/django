@@ -325,6 +325,11 @@ class ExecutorTests(MigrationTestBase):
         def fake_storer(phase, migration=None, fake=None):
             state["faked"] = fake
 
+# #       Delete the tables before running the test
+#         with connection.schema_editor() as editor:
+#             for table in ["migrations_author", "migrations_tribble"]:
+#                 editor.execute(editor.sql_delete_table % {"table": table})
+
         executor = MigrationExecutor(connection, progress_callback=fake_storer)
         # Were the tables there before?
         self.assertTableNotExists("migrations_author")
@@ -386,6 +391,12 @@ class ExecutorTests(MigrationTestBase):
         Regression test for #22325 - references to a custom user model defined in the
         same app are not resolved correctly.
         """
+        # Delete tables before running the test
+        # tables_to_delete = ["migrations_tribble"]
+        # with connection.schema_editor() as editor:
+        #     for table in tables_to_delete:
+        #         editor.execute(editor.sql_delete_table % {"table": table})
+
         with isolate_lru_cache(global_apps.get_swappable_settings_name):
             executor = MigrationExecutor(connection)
             self.assertTableNotExists("migrations_author")
@@ -616,6 +627,12 @@ class ExecutorTests(MigrationTestBase):
         """
         #24129 - Tests callback process
         """
+        # Delete tables before running the test
+        # tables_to_delete = ["migrations_tribble"]
+        # with connection.schema_editor() as editor:
+        #     for table in tables_to_delete:
+        #         editor.execute(editor.sql_delete_table % {"table": table})
+
         call_args_list = []
 
         def callback(*args):

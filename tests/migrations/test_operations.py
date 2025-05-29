@@ -2222,6 +2222,7 @@ class OperationTests(OperationTestBase):
             operation.database_backwards(app_label, editor, new_state, project_state)
 
     def test_alter_field_pk_mti_fk(self):
+        #curr
         app_label = "test_alflpkmtifk"
         project_state = self.set_up_test_model(app_label, mti_model=True)
         project_state = self.apply_operations(
@@ -2270,6 +2271,9 @@ class OperationTests(OperationTestBase):
                     cursor, "shetlandpony", "pony_ptr_id"
                 )
                 mti_id_type = _get_column_id_type(cursor, "shetlandrider", "pony_id")
+            print("Parent ID Type:", parent_id_type) #8
+            print("Child ID Type:", child_id_type)   #3
+            print("MTI ID Type:", mti_id_type)       #3
             self.assertEqual(parent_id_type, child_id_type)
             self.assertEqual(parent_id_type, mti_id_type)
 
@@ -3730,6 +3734,7 @@ class OperationTests(OperationTestBase):
             Book.objects.create(read=70, unread=10)
         Book.objects.create(read=70, unread=30)
 
+    @skipUnlessDBFeature("supports_column_check_constraints")
     def test_remove_constraint(self):
         project_state = self.set_up_test_model(
             "test_removeconstraint",
