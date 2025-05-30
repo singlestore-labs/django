@@ -21,14 +21,13 @@ class ConcatTests(TestCase):
         Author.objects.create(name="Margaret", goes_by="Maggie")
         Author.objects.create(name="Rhonda", alias="adnohR")
         authors = Author.objects.annotate(joined=Concat("alias", "goes_by"))
-        #In Singlestore , If any of the arguments is NULL, the result is NULL in CONCAT.
         self.assertQuerySetEqual(
             authors.order_by("name"),
             [
-                None,
+                "",
                 "smithjJohn",
-                None,
-                None,
+                "Maggie",
+                "adnohR",
             ],
             lambda a: a.joined,
         )
@@ -50,10 +49,10 @@ class ConcatTests(TestCase):
         self.assertQuerySetEqual(
             authors.order_by("name"),
             [
-                None,
+                "Jayden ()",
                 "John Smith (John)",
                 "Margaret (Maggie)",
-                None,
+                "Rhonda ()",
             ],
             lambda a: a.joined,
         )
