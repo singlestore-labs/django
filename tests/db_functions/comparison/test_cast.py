@@ -68,6 +68,9 @@ class CastTests(TestCase):
             models.IntegerField,
             models.BigIntegerField,
             models.SmallIntegerField,
+            models.PositiveBigIntegerField,
+            models.PositiveIntegerField,
+            models.PositiveSmallIntegerField,
         ):
             with self.subTest(field_class=field_class):
                 numbers = Author.objects.annotate(cast_int=Cast("alias", field_class()))
