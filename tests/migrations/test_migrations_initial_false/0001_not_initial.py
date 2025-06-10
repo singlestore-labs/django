@@ -1,5 +1,5 @@
-import django_singlestore.schema
 from django.db import migrations, models
+import django_singlestore.schema
 
 
 class Migration(migrations.Migration):
@@ -31,3 +31,4 @@ class Migration(migrations.Migration):
             ],
         ),
     ]
+    
