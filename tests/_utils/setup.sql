@@ -514,6 +514,7 @@ CREATE TABLE `generic_relations_regress_organization_contact` (
   UNIQUE KEY (`organization_id`, `contact_id`),
   KEY (`organization_id`),
   KEY (`contact_id`)
+);
 
 -- fixtures
 CREATE TABLE `fixtures_blog_article` (
