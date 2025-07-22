@@ -68,7 +68,16 @@ class Topping(models.Model):
 
 class Pizza(models.Model):
     name = models.CharField(max_length=100)
-    toppings = models.ManyToManyField(Topping)
+    toppings = models.ManyToManyField("Topping", through="PizzaTopping")
+
+
+class PizzaTopping(models.Model):
+    pizza = models.ForeignKey(Pizza, on_delete=models.CASCADE)
+    topping = models.ForeignKey(Topping, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('pizza', 'topping'),)
+        db_table = "select_related_pizza_topping"
 
 
 class TaggedItem(models.Model):
