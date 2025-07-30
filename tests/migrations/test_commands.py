@@ -3053,9 +3053,9 @@ class OptimizeMigrationTests(MigrationTestBase):
             with open(initial_migration_file) as fp:
                 content = fp.read()
                 self.assertIn(
-                    "('bool', models.BooleanField"
+                    '("bool", models.BooleanField'
                     if HAS_BLACK
-                    else '("bool", models.BooleanField',
+                    else "('bool', models.BooleanField",
                     content,
                 )
         self.assertEqual(
@@ -3081,9 +3081,9 @@ class OptimizeMigrationTests(MigrationTestBase):
             with open(initial_migration_file) as fp:
                 content = fp.read()
                 self.assertIn(
-                    "('bool', models.BooleanField"
+                    '("bool", models.BooleanField'
                     if HAS_BLACK
-                    else '("bool", models.BooleanField',
+                    else "('bool', models.BooleanField",
                     content,
                 )
         self.assertEqual(out.getvalue(), "")
