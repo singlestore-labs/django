@@ -28,8 +28,17 @@ class AttributeErrorManager(models.Manager):
 
 
 class Article(models.Model):
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField("Author", through="ArticleAuthor")
     title = models.CharField(max_length=50)
     objects = models.Manager()
     by_a_sir = ArticleManager()
     attribute_error_objects = AttributeErrorManager()
+
+
+class ArticleAuthor(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'author'),)
+        db_table = "get_object_or_404_article_author"
