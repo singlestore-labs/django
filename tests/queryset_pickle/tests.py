@@ -103,7 +103,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_model_pickle_m2m(self):
         """
-        Test intentionally the automatically created through model.
+        Test intentionally the custom through model.
         """
         m1 = M2MModel.objects.create()
         g1 = Group.objects.create(name="foof")
