@@ -8,7 +8,16 @@ from .models.publication import Publication
 
 class Advertisement(models.Model):
     customer = models.CharField(max_length=100)
-    publications = models.ManyToManyField("model_package.Publication", blank=True)
+    publications = models.ManyToManyField("model_package.Publication", blank=True, through="Advertisementmodel_package")
+
+
+class Advertisementmodel_package(models.Model):
+    advertisement = models.ForeignKey(Advertisement, on_delete=models.CASCADE)
+    publication = models.ForeignKey("model_package.Publication", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('advertisement', 'publication'),)
+        db_table = "model_package_advertisement_publications"
 
 
 class ModelPackageTests(TestCase):

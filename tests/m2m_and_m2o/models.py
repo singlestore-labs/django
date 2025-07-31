@@ -12,7 +12,7 @@ class User(models.Model):
 
 class Issue(models.Model):
     num = models.IntegerField()
-    cc = models.ManyToManyField(User, blank=True, related_name="test_issue_cc")
+    cc = models.ManyToManyField("User", blank=True, related_name="test_issue_cc", through="IssueUser")
     client = models.ForeignKey(User, models.CASCADE, related_name="test_issue_client")
 
     class Meta:
@@ -22,5 +22,23 @@ class Issue(models.Model):
         return str(self.num)
 
 
+class IssueUser(models.Model):
+    issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('issue', 'user'),)
+        db_table = "m2m_and_m2o_issue_user"
+
+
 class StringReferenceModel(models.Model):
-    others = models.ManyToManyField("StringReferenceModel")
+    others = models.ManyToManyField("StringReferenceModel", through="StringReferenceModelStringReferenceModel")
+
+
+class StringReferenceModelStringReferenceModel(models.Model):
+    from_stringreferencemodel = models.ForeignKey(StringReferenceModel, on_delete=models.CASCADE, related_name="from_stringreferencemodel")
+    to_stringreferencemodel = models.ForeignKey(StringReferenceModel, on_delete=models.CASCADE, related_name="to_stringreferencemodel")
+
+    class Meta:
+        unique_together = (('from_stringreferencemodel', 'to_stringreferencemodel'),)
+        db_table = "m2m_and_m2o_stringreferencemodel_stringreferencemodel"

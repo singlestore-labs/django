@@ -1,4 +1,5 @@
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class School(models.Model):
@@ -26,6 +27,8 @@ class Poet(models.Model):
 class Poem(models.Model):
     poet = models.ForeignKey(Poet, models.CASCADE)
     name = models.CharField(max_length=100)
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = ("poet", "name")
