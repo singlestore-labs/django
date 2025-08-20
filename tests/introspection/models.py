@@ -1,4 +1,5 @@
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class City(models.Model):
@@ -25,6 +26,8 @@ class Reporter(models.Model):
     small_int = models.SmallIntegerField()
     interval = models.DurationField()
 
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
+
     class Meta:
         unique_together = ("first_name", "last_name")
 
@@ -38,6 +41,8 @@ class Article(models.Model):
     unmanaged_reporters = models.ManyToManyField(
         Reporter, through="ArticleReporter", related_name="+"
     )
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         ordering = ("headline",)
@@ -61,6 +66,8 @@ class Comment(models.Model):
     email = models.EmailField()
     pub_date = models.DateTimeField()
     body = models.TextField()
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         constraints = [

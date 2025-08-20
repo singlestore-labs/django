@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 temp_storage_dir = tempfile.mkdtemp()
 temp_storage = FileSystemStorage(temp_storage_dir)
 
@@ -62,7 +64,7 @@ class Article(models.Model):
     created = models.DateField(editable=False)
     writer = models.ForeignKey(Writer, models.CASCADE)
     article = models.TextField()
-    categories = models.ManyToManyField(Category, blank=True)
+    categories = models.ManyToManyField("Category", blank=True, through="ArticleCategory")
     status = models.PositiveIntegerField(choices=ARTICLE_STATUS, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -72,14 +74,23 @@ class Article(models.Model):
 
     def __str__(self):
         return self.headline
+    
+
+class ArticleCategory(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'category'),)
+        db_table = "model_forms_article_category"
 
 
 class ImprovedArticle(models.Model):
-    article = models.OneToOneField(Article, models.CASCADE)
+    article = models.OneToOneField(Article, models.CASCADE, primary_key=True)
 
 
 class ImprovedArticleWithParentLink(models.Model):
-    article = models.OneToOneField(Article, models.CASCADE, parent_link=True)
+    article = models.OneToOneField(Article, models.CASCADE, parent_link=True, primary_key=True)
 
 
 class BetterWriter(Writer):
@@ -119,11 +130,15 @@ class Author(models.Model):
         Publication, models.SET_NULL, null=True, blank=True
     )
     full_name = models.CharField(max_length=255)
+    
+    objects = ModelStorageManager("REFERENCE")
 
 
 class Author1(models.Model):
     publication = models.OneToOneField(Publication, models.CASCADE, null=False)
     full_name = models.CharField(max_length=255)
+    
+    objects = ModelStorageManager("REFERENCE")
 
 
 class WriterProfile(models.Model):
@@ -230,7 +245,7 @@ class Homepage(models.Model):
 
 
 class Product(models.Model):
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(primary_key=True)
 
     def __str__(self):
         return self.slug
@@ -239,6 +254,8 @@ class Product(models.Model):
 class Price(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("price", "quantity"),)
@@ -251,6 +268,8 @@ class Triple(models.Model):
     left = models.IntegerField()
     middle = models.IntegerField()
     right = models.IntegerField()
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("left", "middle"), ("middle", "right"))
@@ -268,7 +287,7 @@ class ArticleStatus(models.Model):
 
 
 class Inventory(models.Model):
-    barcode = models.PositiveIntegerField(unique=True)
+    barcode = models.PositiveIntegerField(primary_key=True)
     parent = models.ForeignKey(
         "self", models.SET_NULL, to_field="barcode", blank=True, null=True
     )
@@ -288,13 +307,15 @@ class Book(models.Model):
     title = models.CharField(max_length=40)
     author = models.ForeignKey(Writer, models.SET_NULL, blank=True, null=True)
     special_id = models.IntegerField(blank=True, null=True, unique=True)
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = ("title", "author")
 
 
 class BookXtra(models.Model):
-    isbn = models.CharField(max_length=16, unique=True)
+    isbn = models.CharField(max_length=16, primary_key=True)
     suffix1 = models.IntegerField(blank=True, default=0)
     suffix2 = models.IntegerField(blank=True, default=0)
 
@@ -304,12 +325,14 @@ class BookXtra(models.Model):
 
 
 class DerivedBook(Book, BookXtra):
-    pass
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
 
 class ExplicitPK(models.Model):
     key = models.CharField(max_length=20, primary_key=True)
     desc = models.CharField(max_length=20, blank=True, unique=True)
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = ("key", "desc")
@@ -386,7 +409,16 @@ class Colour(models.Model):
 
 class ColourfulItem(models.Model):
     name = models.CharField(max_length=50)
-    colours = models.ManyToManyField(Colour)
+    colours = models.ManyToManyField("Colour", through="ColourfulItemColour")
+
+
+class ColourfulItemColour(models.Model):
+    colourfulitem = models.ForeignKey(ColourfulItem, on_delete=models.CASCADE)
+    colour = models.ForeignKey(Colour, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('colourfulitem', 'colour'),)
+        db_table = "model_forms_colourfulitem_colour"
 
 
 class CustomErrorMessage(models.Model):
@@ -441,9 +473,19 @@ class StumpJoke(models.Model):
         Character,
         limit_choices_to=today_callable_q,
         related_name="jokes_today",
+        through="StumpJokeCharacter",
     )
     funny = models.BooleanField(default=False)
 
+
+class StumpJokeCharacter(models.Model):
+    stumpjoke = models.ForeignKey(StumpJoke, on_delete=models.CASCADE)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('stumpjoke', 'character'),)
+        db_table = "model_forms_stumpjoke_character"
+        
 
 # Model for #13776
 class Student(models.Model):
@@ -504,6 +546,8 @@ class NullableUniqueCharFieldModel(models.Model):
     email = models.EmailField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
+    
+    objects = ModelStorageManager("REFERENCE")
 
 
 class Number(models.Model):
@@ -513,6 +557,10 @@ class Number(models.Model):
 class NumbersToDice(models.Model):
     number = models.ForeignKey("Number", on_delete=models.CASCADE)
     die = models.ForeignKey("Dice", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('number', 'die'),)
+        db_table = "model_forms_dice_number"
 
 
 class Dice(models.Model):

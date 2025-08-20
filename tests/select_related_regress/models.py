@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_singlestore.schema import ModelStorageManager
 
 class Building(models.Model):
     name = models.CharField(max_length=10)
@@ -31,6 +31,7 @@ class Connection(models.Model):
         related_name="connection_end",
         unique=True,
     )
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
 
 # Another non-tree hierarchy that exercises code paths similar to the above
@@ -43,6 +44,7 @@ class TUser(models.Model):
 
 class Person(models.Model):
     user = models.ForeignKey(TUser, models.CASCADE, unique=True)
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
 
 class Organizer(models.Model):

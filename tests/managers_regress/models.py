@@ -127,8 +127,7 @@ class RelatedModel(models.Model):
 
 class RelationModel(models.Model):
     fk = models.ForeignKey(RelatedModel, models.CASCADE, related_name="test_fk")
-
-    m2m = models.ManyToManyField(RelatedModel, related_name="test_m2m")
+    m2m = models.ManyToManyField("RelatedModel", related_name="test_m2m", through="RelationModelRelatedModel")
 
     gfk_ctype = models.ForeignKey(ContentType, models.SET_NULL, null=True)
     gfk_id = models.IntegerField(null=True)
@@ -136,3 +135,12 @@ class RelationModel(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+
+class RelationModelRelatedModel(models.Model):
+    relationmodel = models.ForeignKey(RelationModel, on_delete=models.CASCADE)
+    relatedmodel = models.ForeignKey(RelatedModel, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('relationmodel', 'relatedmodel'),)
+        db_table = "managers_regress_relationmodel_relatedmodel"

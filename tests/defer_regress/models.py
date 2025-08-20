@@ -3,6 +3,7 @@ Regression tests for defer() / only() behavior.
 """
 
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Item(models.Model):
@@ -61,6 +62,7 @@ class SpecialFeature(models.Model):
 class OneToOneItem(models.Model):
     item = models.OneToOneField(Item, models.CASCADE, related_name="one_to_one_item")
     name = models.CharField(max_length=15)
+    objects = ModelStorageManager("REFERENCE")
 
 
 class ItemAndSimpleItem(models.Model):
@@ -79,12 +81,21 @@ class Location(models.Model):
 class Request(models.Model):
     profile = models.ForeignKey(Profile, models.SET_NULL, null=True, blank=True)
     location = models.ForeignKey(Location, models.CASCADE)
-    items = models.ManyToManyField(Item)
+    items = models.ManyToManyField("Item", through="RequestItem")
 
     request1 = models.CharField(default="request1", max_length=255)
     request2 = models.CharField(default="request2", max_length=255)
     request3 = models.CharField(default="request3", max_length=255)
     request4 = models.CharField(default="request4", max_length=255)
+
+
+class RequestItem(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('request', 'item'),)
+        db_table = "defer_regress_request_item"
 
 
 class Base(models.Model):

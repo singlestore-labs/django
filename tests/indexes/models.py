@@ -1,5 +1,7 @@
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class CurrentTranslation(models.ForeignObject):
     """
@@ -25,6 +27,8 @@ class ArticleTranslation(models.Model):
     language = models.CharField(max_length=10, unique=True)
     content = models.TextField()
 
+    objects = ModelStorageManager("REFERENCE")
+
 
 class Article(models.Model):
     headline = models.CharField(max_length=100)
@@ -44,6 +48,8 @@ class IndexedArticle(models.Model):
     headline = models.CharField(max_length=100, db_index=True)
     body = models.TextField(db_index=True)
     slug = models.CharField(max_length=40, unique=True)
+
+    objects = ModelStorageManager("REFERENCE")
 
     class Meta:
         required_db_features = {"supports_index_on_text_field"}

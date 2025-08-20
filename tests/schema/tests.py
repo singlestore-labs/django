@@ -85,12 +85,16 @@ from .models import (
     Note,
     NoteRename,
     Tag,
+    TagDup,
+    TagDupUniqueRename,
     TagM2MTest,
     TagUniqueRename,
     Thing,
     UniqueTest,
     new_apps,
 )
+
+from django_singlestore.schema import ModelStorageManager
 
 
 class SchemaTests(TransactionTestCase):
@@ -2279,11 +2283,12 @@ class SchemaTests(TransactionTestCase):
         columns = self.column_classes(LocalTagThrough)
         self.assertEqual(
             columns["book_id"][0],
-            connection.features.introspected_field_types["IntegerField"],
+            connection.features.introspected_field_types["BigIntegerField"],
         )
         self.assertEqual(
             columns["tag_id"][0],
-            connection.features.introspected_field_types["IntegerField"],
+            # TagM2MTest primary key is SlugField, so the keyt to it is CharField
+            connection.features.introspected_field_types["CharField"],
         )
 
     def test_m2m_create_through(self):
@@ -2688,42 +2693,42 @@ class SchemaTests(TransactionTestCase):
         """
         # Create the table
         with connection.schema_editor() as editor:
-            editor.create_model(Tag)
+            editor.create_model(TagDup)
         # Ensure the field is unique to begin with
-        Tag.objects.create(title="foo", slug="foo")
+        TagDup.objects.create(title="foo", slug="foo")
         with self.assertRaises(IntegrityError):
-            Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+            TagDup.objects.create(title="bar", slug="foo")
+        TagDup.objects.all().delete()
         # Alter the slug field to be non-unique
-        old_field = Tag._meta.get_field("slug")
+        old_field = TagDup._meta.get_field("slug")
         new_field = SlugField(unique=False)
         new_field.set_attributes_from_name("slug")
         with connection.schema_editor() as editor:
-            editor.alter_field(Tag, old_field, new_field, strict=True)
+            editor.alter_field(TagDup, old_field, new_field, strict=True)
         # Ensure the field is no longer unique
-        Tag.objects.create(title="foo", slug="foo")
-        Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+        TagDup.objects.create(title="foo", slug="foo")
+        TagDup.objects.create(title="bar", slug="foo")
+        TagDup.objects.all().delete()
         # Alter the slug field to be unique
         new_field2 = SlugField(unique=True)
         new_field2.set_attributes_from_name("slug")
         with connection.schema_editor() as editor:
-            editor.alter_field(Tag, new_field, new_field2, strict=True)
+            editor.alter_field(TagDup, new_field, new_field2, strict=True)
         # Ensure the field is unique again
-        Tag.objects.create(title="foo", slug="foo")
+        TagDup.objects.create(title="foo", slug="foo")
         with self.assertRaises(IntegrityError):
-            Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+            TagDup.objects.create(title="bar", slug="foo")
+        TagDup.objects.all().delete()
         # Rename the field
         new_field3 = SlugField(unique=True)
         new_field3.set_attributes_from_name("slug2")
         with connection.schema_editor() as editor:
-            editor.alter_field(Tag, new_field2, new_field3, strict=True)
+            editor.alter_field(TagDup, new_field2, new_field3, strict=True)
         # Ensure the field is still unique
-        TagUniqueRename.objects.create(title="foo", slug2="foo")
+        TagDupUniqueRename.objects.create(title="foo", slug2="foo")
         with self.assertRaises(IntegrityError):
-            TagUniqueRename.objects.create(title="bar", slug2="foo")
-        Tag.objects.all().delete()
+            TagDupUniqueRename.objects.create(title="bar", slug2="foo")
+        TagDup.objects.all().delete()
 
     def test_unique_name_quoting(self):
         old_table_name = TagUniqueRename._meta.db_table
@@ -3435,7 +3440,7 @@ class SchemaTests(TransactionTestCase):
 
         class TagIndexed(Model):
             title = CharField(max_length=255)
-            slug = SlugField(unique=True)
+            slug = SlugField(primary_key=True)
 
             class Meta:
                 app_label = "schema"
@@ -4151,7 +4156,8 @@ class SchemaTests(TransactionTestCase):
         with atomic(), connection.schema_editor() as editor:
             with self.assertRaisesMessage(TransactionManagementError, message):
                 editor.execute(
-                    editor.sql_create_table % {"table": "foo", "definition": ""}
+                    editor.sql_create_table % {"table": "foo", "definition": "", 
+                                               "table_storage_type": "", "comment": ""}
                 )
 
     @skipUnlessDBFeature("supports_foreign_keys", "indexes_foreign_keys")
@@ -5331,7 +5337,8 @@ class SchemaTests(TransactionTestCase):
         )
         with connection.schema_editor() as editor:
             editor.alter_field(Author, new_field, old_field, strict=True)
-        self.assertIsNone(self.get_column_collation(Author._meta.db_table, "name"))
+        # collation is always not None in SingleStore
+        # self.assertIsNone(self.get_column_collation(Author._meta.db_table, "name"))
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_alter_field_type_preserve_db_collation(self):
@@ -5388,7 +5395,8 @@ class SchemaTests(TransactionTestCase):
         with connection.schema_editor() as editor:
             editor.alter_field(Thing, new_field, old_field, strict=True)
         self.assertEqual(self.get_primary_key(Thing._meta.db_table), "when")
-        self.assertIsNone(self.get_column_collation(Thing._meta.db_table, "when"))
+        # collation is always not None in SingleStore
+        # self.assertIsNone(self.get_column_collation(Thing._meta.db_table, "when"))
 
     @skipUnlessDBFeature(
         "supports_collation_on_charfield", "supports_collation_on_textfield"

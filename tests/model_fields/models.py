@@ -10,6 +10,8 @@ from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.utils.translation import gettext_lazy as _
 
+from django_singlestore.schema import ModelStorageManager
+
 try:
     from PIL import Image
 except ImportError:
@@ -238,6 +240,8 @@ class DataModel(models.Model):
 class Document(models.Model):
     myfile = models.FileField(upload_to="unused", unique=True)
 
+    objects = ModelStorageManager("REFERENCE")
+
 
 ###############################################################################
 # ImageField
@@ -424,17 +428,37 @@ class AllFieldsModel(models.Model):
         related_name="reverse",
     )
     fk = models.ForeignKey("self", models.CASCADE, related_name="reverse2")
-    m2m = models.ManyToManyField("self")
+    m2m = models.ManyToManyField("self", through="AllFieldsModelFriend")
     oto = models.OneToOneField("self", models.CASCADE)
 
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, models.CASCADE)
     gfk = GenericForeignKey()
     gr = GenericRelation(DataModel)
+    
+    objects = ModelStorageManager("REFERENCE")
+
+
+class AllFieldsModelFriend(models.Model):
+    from_allfieldsmodel = models.ForeignKey(AllFieldsModel, on_delete=models.CASCADE, related_name="from_allfieldsmodel")
+    to_allfieldsmodel = models.ForeignKey(AllFieldsModel, on_delete=models.CASCADE, related_name="to_allfieldsmodel")
+
+    class Meta:
+        unique_together = (('from_allfieldsmodel', 'to_allfieldsmodel'),)
+        db_table = "model_fields_allfieldsmodel_allfieldsmodel"
 
 
 class ManyToMany(models.Model):
-    m2m = models.ManyToManyField("self")
+    m2m = models.ManyToManyField("ManyToMany", through="ManyToManyFriend")
+
+
+class ManyToManyFriend(models.Model):
+    from_manytomany = models.ForeignKey(ManyToMany, on_delete=models.CASCADE, related_name="from_manytomany")
+    to_manytomany = models.ForeignKey(ManyToMany, on_delete=models.CASCADE, related_name="to_manytomany")
+
+    class Meta:
+        unique_together = (('from_manytomany', 'to_manytomany'),)
+        db_table = "model_fields_manytomany_manytomany"
 
 
 ###############################################################################

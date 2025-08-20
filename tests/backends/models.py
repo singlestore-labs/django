@@ -40,8 +40,20 @@ class VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ(models.Model):
         max_length=100
     )
     m2m_also_quite_long_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = (
-        models.ManyToManyField(Person, blank=True)
+        models.ManyToManyField(Person, blank=True,
+                               through="VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZPerson")
     )
+
+
+class VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZPerson(models.Model):
+    verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = models.ForeignKey(
+        VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ, on_delete=models.CASCADE
+        )
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'person'),)
+        db_table = "backends_verylongmodelnamezzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_person"
 
 
 class Tag(models.Model):
@@ -102,12 +114,21 @@ class Item(models.Model):
 
 class Object(models.Model):
     related_objects = models.ManyToManyField(
-        "self", db_constraint=False, symmetrical=False
-    )
+        "self", symmetrical=False, through="ObjectFriend"
+        )
     obj_ref = models.ForeignKey("ObjectReference", models.CASCADE, null=True)
 
     def __str__(self):
         return str(self.id)
+
+
+class ObjectFriend(models.Model):
+    from_object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="from_object")
+    to_object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="to_object")
+
+    class Meta:
+        unique_together = (('from_object', 'to_object'),)
+        db_table = "backends_object_object"
 
 
 class ObjectReference(models.Model):
@@ -118,12 +139,12 @@ class ObjectReference(models.Model):
 
 
 class ObjectSelfReference(models.Model):
-    key = models.CharField(max_length=3, unique=True)
+    key = models.CharField(max_length=3, primary_key=True)
     obj = models.ForeignKey("ObjectSelfReference", models.SET_NULL, null=True)
 
 
 class CircularA(models.Model):
-    key = models.CharField(max_length=3, unique=True)
+    key = models.CharField(max_length=3, primary_key=True)
     obj = models.ForeignKey("CircularB", models.SET_NULL, null=True)
 
     def natural_key(self):
@@ -131,7 +152,7 @@ class CircularA(models.Model):
 
 
 class CircularB(models.Model):
-    key = models.CharField(max_length=3, unique=True)
+    key = models.CharField(max_length=3, primary_key=True)
     obj = models.ForeignKey("CircularA", models.SET_NULL, null=True)
 
     def natural_key(self):
@@ -143,7 +164,7 @@ class RawData(models.Model):
 
 
 class Author(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
 
 class Book(models.Model):

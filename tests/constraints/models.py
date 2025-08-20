@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_singlestore.schema import ModelStorageManager
 
 class Product(models.Model):
     price = models.IntegerField(null=True)
@@ -31,6 +31,8 @@ class Product(models.Model):
 class UniqueConstraintProduct(models.Model):
     name = models.CharField(max_length=255)
     color = models.CharField(max_length=32, null=True)
+
+    objects = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
 
     class Meta:
         constraints = [

@@ -5,6 +5,7 @@ Queries are not redone when going back through known relations.
 """
 
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Tournament(models.Model):
@@ -27,3 +28,6 @@ class PoolStyle(models.Model):
     another_pool = models.OneToOneField(
         Pool, models.CASCADE, null=True, related_name="another_style"
     )
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
+
