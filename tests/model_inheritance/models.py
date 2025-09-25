@@ -14,6 +14,7 @@ Both styles are demonstrated here.
 
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
 #
 # Abstract base classes
 #
@@ -114,7 +115,16 @@ class ItalianRestaurantCommonParent(ItalianRestaurant, Place):
 
 
 class Supplier(Place):
-    customers = models.ManyToManyField(Restaurant, related_name="provider")
+    customers = models.ManyToManyField("Restaurant", related_name="provider", through="SupplierRestaurant")
+
+
+class SupplierRestaurant(models.Model):
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('supplier', 'restaurant'),)
+        db_table = "model_inheritance_supplier_restaurant"
 
 
 class CustomSupplier(Supplier):
@@ -164,11 +174,24 @@ class MixinModel(models.Model, Mixin):
 
 
 class Base(models.Model):
-    titles = models.ManyToManyField(Title)
+    titles = models.ManyToManyField("Title", through="BaseTitle")
+
+
+class BaseTitle(models.Model):
+    base = models.ForeignKey(Base, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
+
+    class Meta:
+        unique_together = (('base', 'title'),)
+        db_table = "model_inheritance_base_title"
 
 
 class SubBase(Base):
     sub_id = models.IntegerField(primary_key=True)
+
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class GrandParent(models.Model):
@@ -176,6 +199,8 @@ class GrandParent(models.Model):
     last_name = models.CharField(max_length=80)
     email = models.EmailField(unique=True)
     place = models.ForeignKey(Place, models.CASCADE, null=True, related_name="+")
+
+    objects = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
 
     class Meta:
         # Ordering used by test_inherited_ordering_pk_desc.

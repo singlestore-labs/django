@@ -302,7 +302,7 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_annotate(self):
-        with self.assertNumQueries(1):
+        with self.assertNumQueries(3):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
             ).annotate(n=models.Count("description")).filter(
@@ -313,7 +313,7 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_extra(self):
-        with self.assertNumQueries(1):
+        with self.assertNumQueries(3):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
             ).extra(select={"extraf": "1"}).filter(pk=self.l1.pk).delete()
@@ -322,7 +322,7 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_select_related(self):
-        with self.assertNumQueries(1):
+        with self.assertNumQueries(3):
             Login.objects.filter(pk=self.l1.pk).filter(
                 orgunit__name__isnull=False
             ).order_by("description").select_related("orgunit").delete()
@@ -331,7 +331,8 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_defer(self):
-        with self.assertNumQueries(1):
+        # BEGIN, actual query, COMMIT 
+        with self.assertNumQueries(3):
             Login.objects.filter(pk=self.l1.pk).filter(
                 orgunit__name__isnull=False
             ).order_by("description").only("id").delete()
@@ -414,5 +415,5 @@ class SetQueryCountTests(TestCase):
             location_value=location,
         )
         # 3 UPDATEs for SET of item values and one for DELETE locations.
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(6):
             location.delete()

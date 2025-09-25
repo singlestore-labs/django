@@ -5,6 +5,7 @@ To define a many-to-one relationship, use ``ForeignKey()``.
 """
 
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Reporter(models.Model):
@@ -73,6 +74,7 @@ class Parent(models.Model):
     bestchild = models.ForeignKey(
         "Child", models.SET_NULL, null=True, related_name="favored_by"
     )
+    objects = ModelStorageManager("REFERENCE")
 
 
 class ParentStringPrimaryKey(models.Model):

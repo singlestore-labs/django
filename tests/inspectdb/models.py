@@ -2,6 +2,7 @@ from django.db import connection, models
 from django.db.models.functions import Lower
 from django.utils.functional import SimpleLazyObject
 
+from django_singlestore.schema import ModelStorageManager
 
 class People(models.Model):
     name = models.CharField(max_length=255)
@@ -19,7 +20,7 @@ class PeopleData(models.Model):
 
 
 class PeopleMoreData(models.Model):
-    people_unique = models.ForeignKey(People, models.CASCADE, unique=True)
+    people_unique = models.ForeignKey(People, models.CASCADE, primary_key=True)
     message = models.ForeignKey(Message, models.CASCADE, blank=True, null=True)
     license = models.CharField(max_length=255)
 
@@ -122,11 +123,14 @@ class CharFieldUnlimited(models.Model):
 
 
 class UniqueTogether(models.Model):
+    
     field1 = models.IntegerField()
     field2 = models.CharField(max_length=10)
     from_field = models.IntegerField(db_column="from")
     non_unique = models.IntegerField(db_column="non__unique_column")
     non_unique_0 = models.IntegerField(db_column="non_unique__column")
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = [

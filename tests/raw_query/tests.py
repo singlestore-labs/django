@@ -136,8 +136,8 @@ class RawQueryTests(TestCase):
         """
         Basic test of raw query with a simple database query
         """
-        query = "SELECT * FROM raw_query_author"
-        authors = Author.objects.all()
+        query = "SELECT * FROM raw_query_author ORDER BY id"
+        authors = Author.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_raw_query_lazy(self):
@@ -154,8 +154,8 @@ class RawQueryTests(TestCase):
         """
         Test of a simple raw query against a model containing a foreign key
         """
-        query = "SELECT * FROM raw_query_book"
-        books = Book.objects.all()
+        query = "SELECT * FROM raw_query_book ORDER BY id"
+        books = Book.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Book, query, books)
 
     def test_db_column_handler(self):
@@ -163,8 +163,8 @@ class RawQueryTests(TestCase):
         Test of a simple raw query against a model containing a field with
         db_column defined.
         """
-        query = "SELECT * FROM raw_query_coffee"
-        coffees = Coffee.objects.all()
+        query = "SELECT * FROM raw_query_coffee ORDER BY id"
+        coffees = Coffee.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Coffee, query, coffees)
 
     def test_pk_with_mixed_case_db_column(self):
@@ -187,8 +187,8 @@ class RawQueryTests(TestCase):
         )
 
         for select in selects:
-            query = "SELECT %s FROM raw_query_author" % select
-            authors = Author.objects.all()
+            query = "SELECT %s FROM raw_query_author ORDER BY id" % select
+            authors = Author.objects.all().order_by("id")
             self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_translations(self):
@@ -198,10 +198,10 @@ class RawQueryTests(TestCase):
         """
         query = (
             "SELECT first_name AS first, last_name AS last, dob, id "
-            "FROM raw_query_author"
+            "FROM raw_query_author ORDER BY id"
         )
         translations = {"first": "first_name", "last": "last_name"}
-        authors = Author.objects.all()
+        authors = Author.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Author, query, authors, translations=translations)
 
     def test_params(self):
@@ -273,19 +273,19 @@ class RawQueryTests(TestCase):
         """
         Test of a simple raw query against a model containing a m2m field
         """
-        query = "SELECT * FROM raw_query_reviewer"
-        reviewers = Reviewer.objects.all()
+        query = "SELECT * FROM raw_query_reviewer ORDER BY id"
+        reviewers = Reviewer.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Reviewer, query, reviewers)
 
     def test_extra_conversions(self):
         """Extra translations are ignored."""
-        query = "SELECT * FROM raw_query_author"
+        query = "SELECT * FROM raw_query_author ORDER BY id"
         translations = {"something": "else"}
-        authors = Author.objects.all()
+        authors = Author.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Author, query, authors, translations=translations)
 
     def test_missing_fields(self):
-        query = "SELECT id, first_name, dob FROM raw_query_author"
+        query = "SELECT id, first_name, dob FROM raw_query_author ORDER BY id"
         for author in Author.objects.raw(query):
             self.assertIsNotNone(author.first_name)
             # last_name isn't given, but it will be retrieved on demand
@@ -314,13 +314,13 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors, expected_annotations)
 
     def test_white_space_query(self):
-        query = "    SELECT * FROM raw_query_author"
-        authors = Author.objects.all()
+        query = "    SELECT * FROM raw_query_author ORDER BY id"
+        authors = Author.objects.all().order_by("id")
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_multiple_iterations(self):
-        query = "SELECT * FROM raw_query_author"
-        normal_authors = Author.objects.all()
+        query = "SELECT * FROM raw_query_author ORDER BY id"
+        normal_authors = Author.objects.all().order_by("id")
         raw_authors = Author.objects.raw(query)
 
         # First Iteration

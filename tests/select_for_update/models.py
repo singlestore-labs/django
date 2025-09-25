@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_singlestore.schema import ModelStorageManager
 
 class Entity(models.Model):
     pass
@@ -45,3 +45,4 @@ class Person(models.Model):
 
 class PersonProfile(models.Model):
     person = models.OneToOneField(Person, models.CASCADE, related_name="profile")
+    objects = ModelStorageManager("ROWSTORE REFERENCE")

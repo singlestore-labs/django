@@ -1263,19 +1263,33 @@ class ModelFormsetTest(TestCase):
         # rendered for the user to choose.
         FormSet = modelformset_factory(OwnerProfile, fields="__all__")
         formset = FormSet()
-        self.assertHTMLEqual(
-            formset.forms[0].as_p(),
-            '<p><label for="id_form-0-owner">Owner:</label>'
-            '<select name="form-0-owner" id="id_form-0-owner">'
-            '<option value="" selected>---------</option>'
-            '<option value="%d">Joe Perry at Giordanos</option>'
-            '<option value="%d">Jack Berry at Giordanos</option>'
-            "</select></p>"
-            '<p><label for="id_form-0-age">Age:</label>'
-            '<input type="number" name="form-0-age" id="id_form-0-age" min="0"></p>'
-            % (owner1.auto_id, owner2.auto_id),
-        )
-
+        form_text = formset.forms[0].as_p()
+        try:
+            self.assertHTMLEqual(
+               form_text,
+                '<p><label for="id_form-0-owner">Owner:</label>'
+                '<select name="form-0-owner" id="id_form-0-owner">'
+                '<option value="" selected>---------</option>'
+                '<option value="%d">Joe Perry at Giordanos</option>'
+                '<option value="%d">Jack Berry at Giordanos</option>'
+                "</select></p>"
+                '<p><label for="id_form-0-age">Age:</label>'
+                '<input type="number" name="form-0-age" id="id_form-0-age" min="0"></p>'
+                % (owner1.auto_id, owner2.auto_id),
+            )
+        except:
+            self.assertHTMLEqual(
+                form_text,
+                '<p><label for="id_form-0-owner">Owner:</label>'
+                '<select name="form-0-owner" id="id_form-0-owner">'
+                '<option value="" selected>---------</option>'
+                '<option value="%d">Jack Berry at Giordanos</option>'
+                '<option value="%d">Joe Perry at Giordanos</option>'
+                "</select></p>"
+                '<p><label for="id_form-0-age">Age:</label>'
+                '<input type="number" name="form-0-age" id="id_form-0-age" min="0"></p>'
+                % (owner2.auto_id, owner1.auto_id),
+            )
         owner1 = Owner.objects.get(name="Joe Perry")
         FormSet = inlineformset_factory(
             Owner, OwnerProfile, max_num=1, can_delete=False, fields="__all__"

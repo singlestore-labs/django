@@ -1292,7 +1292,7 @@ class Queries1Tests(TestCase):
     def test_lookup_constraint_fielderror(self):
         msg = (
             "Cannot resolve keyword 'unknown_field' into field. Choices are: "
-            "annotation, category, category_id, children, id, item, "
+            "annotation, category, category_id, children, id, item, itemtag, "
             "managedmodel, name, note, parent, parent_id"
         )
         with self.assertRaisesMessage(FieldError, msg):
@@ -2486,20 +2486,20 @@ class QuerySetBitwiseOperationTests(TestCase):
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_or_with_rhs_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=True)
-        qs2 = Classroom.objects.filter(has_blackboard=False)[:1]
+        qs1 = Classroom.objects.filter(has_blackboard=True).order_by("id")
+        qs2 = Classroom.objects.filter(has_blackboard=False).order_by("id")[:1]
         self.assertCountEqual(qs1 | qs2, [self.room_1, self.room_2, self.room_3])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_or_with_lhs_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=True)[:1]
-        qs2 = Classroom.objects.filter(has_blackboard=False)
+        qs1 = Classroom.objects.filter(has_blackboard=True).order_by("id")[:1]
+        qs2 = Classroom.objects.filter(has_blackboard=False).order_by("id")
         self.assertCountEqual(qs1 | qs2, [self.room_1, self.room_2, self.room_4])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_or_with_both_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=False)[:1]
-        qs2 = Classroom.objects.filter(has_blackboard=True)[:1]
+        qs1 = Classroom.objects.filter(has_blackboard=False).order_by("id")[:1]
+        qs2 = Classroom.objects.filter(has_blackboard=True).order_by("id")[:1]
         self.assertCountEqual(qs1 | qs2, [self.room_1, self.room_2])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
@@ -2510,20 +2510,20 @@ class QuerySetBitwiseOperationTests(TestCase):
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_xor_with_rhs_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=True)
-        qs2 = Classroom.objects.filter(has_blackboard=False)[:1]
+        qs1 = Classroom.objects.filter(has_blackboard=True).order_by("id")
+        qs2 = Classroom.objects.filter(has_blackboard=False).order_by("id")[:1]
         self.assertCountEqual(qs1 ^ qs2, [self.room_1, self.room_2, self.room_3])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_xor_with_lhs_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=True)[:1]
-        qs2 = Classroom.objects.filter(has_blackboard=False)
+        qs1 = Classroom.objects.filter(has_blackboard=True).order_by("id")[:1]
+        qs2 = Classroom.objects.filter(has_blackboard=False).order_by("id")
         self.assertCountEqual(qs1 ^ qs2, [self.room_1, self.room_2, self.room_4])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
     def test_xor_with_both_slice(self):
-        qs1 = Classroom.objects.filter(has_blackboard=False)[:1]
-        qs2 = Classroom.objects.filter(has_blackboard=True)[:1]
+        qs1 = Classroom.objects.filter(has_blackboard=False).order_by("id")[:1]
+        qs2 = Classroom.objects.filter(has_blackboard=True).order_by("id")[:1]
         self.assertCountEqual(qs1 ^ qs2, [self.room_1, self.room_2])
 
     @skipUnlessDBFeature("allow_sliced_subqueries_with_in")
@@ -3639,7 +3639,7 @@ class QuerySetExceptionTests(SimpleTestCase):
     def test_invalid_order_by_raw_column_alias(self):
         msg = (
             "Cannot resolve keyword 'queries_author.name' into field. Choices "
-            "are: cover, created, creator, creator_id, id, modified, name, "
+            "are: cover, created, creator, creator_id, id, itemtag, modified, name, "
             "note, note_id, tags"
         )
         with self.assertRaisesMessage(FieldError, msg):

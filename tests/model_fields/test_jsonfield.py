@@ -408,7 +408,7 @@ class TestQuerying(TestCase):
                     **{"%s__name__isnull" % field_name: False},
                 ).order_by("%s__ord" % field_name)
                 expected = [objs[4], objs[2], objs[3], objs[1], objs[0]]
-                if mariadb or connection.vendor == "oracle":
+                if mariadb or connection.vendor == "oracle" or connection.vendor == "singlestore":
                     # MariaDB and Oracle return JSON values as strings.
                     expected = [objs[2], objs[4], objs[3], objs[1], objs[0]]
                 self.assertSequenceEqual(query, expected)
@@ -659,7 +659,8 @@ class TestQuerying(TestCase):
             Q(value__has_keys=["nested", "123", "array", "000"]),
             Q(value__nested__has_keys=["lorem", "999", "456"]),
             Q(value__array__0__has_keys=["789", "ipsum", "777"]),
-            Q(value__has_any_keys=["000", "nonexistent"]),
+            # key "000" is transformed to 0 array index
+            # Q(value__has_any_keys=["000", "nonexistent"]),
             Q(value__nested__has_any_keys=["999", "nonexistent"]),
             Q(value__array__0__has_any_keys=["777", "nonexistent"]),
         ]
@@ -1055,8 +1056,8 @@ class TestQuerying(TestCase):
                 }
             ).query
         )
-        self.assertIn('"test\\"', query)
-        self.assertIn('\\"d', query)
+        self.assertIn("test\"", query)
+        self.assertIn('\"d', query)
 
     def test_key_escape(self):
         obj = NullableJSONModel.objects.create(value={"%total": 10})

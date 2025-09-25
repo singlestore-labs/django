@@ -20,8 +20,16 @@ class Employee(Person):
     profile = models.ForeignKey(
         "Profile", models.SET_NULL, related_name="profiles", null=True
     )
-    accounts = models.ManyToManyField("Account", related_name="employees", blank=True)
+    accounts = models.ManyToManyField("Account", related_name="employees", blank=True, through="EmployeeAccount")
 
+
+class EmployeeAccount(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('employee', 'account'),)
+        db_table = "update_only_fields_employee_account"
 
 class NonConcreteField(models.IntegerField):
     def db_type(self, connection):

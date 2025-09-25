@@ -4,6 +4,8 @@ import uuid
 
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class NaturalKeyAnchorManager(models.Manager):
     def get_by_natural_key(self, data):
@@ -15,6 +17,7 @@ class NaturalKeyAnchor(models.Model):
     title = models.CharField(max_length=100, null=True)
 
     objects = NaturalKeyAnchorManager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
 
     def natural_key(self):
         return (self.data,)
@@ -30,7 +33,7 @@ class NaturalKeyThing(models.Model):
         "NaturalKeyThing", on_delete=models.CASCADE, null=True
     )
     other_things = models.ManyToManyField(
-        "NaturalKeyThing", related_name="thing_m2m_set"
+        "NaturalKeyThing", related_name="thing_m2m_set", through="NaturalKeyThingOtherThings"
     )
 
     class Manager(models.Manager):
@@ -38,12 +41,24 @@ class NaturalKeyThing(models.Model):
             return self.get(key=key)
 
     objects = Manager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
 
     def natural_key(self):
         return (self.key,)
 
     def __str__(self):
         return self.key
+
+
+class NaturalKeyThingOtherThings(models.Model):
+    from_naturalkeything = models.ForeignKey(NaturalKeyThing, on_delete=models.CASCADE, related_name="from_naturalkeything")
+    to_naturalkeything = models.ForeignKey(NaturalKeyThing, on_delete=models.CASCADE, related_name="to_naturalkeything")
+    
+    storage = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
+
+    class Meta:
+        unique_together = (('from_naturalkeything', 'to_naturalkeything'),)
+        db_table = "serializers_naturalkeything_other_things"
 
 
 class NaturalPKWithDefault(models.Model):
@@ -55,6 +70,7 @@ class NaturalPKWithDefault(models.Model):
             return self.get(name=name)
 
     objects = Manager()
+    storage = ModelStorageManager(table_storage_type="REFERENCE")
 
     def natural_key(self):
         return (self.name,)

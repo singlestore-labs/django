@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_singlestore.schema import ModelStorageManager
 
 class Foo(models.Model):
     name = models.CharField(max_length=50)
@@ -20,6 +20,7 @@ class Whiz(models.Model):
 class Child(models.Model):
     parent = models.OneToOneField("Base", models.CASCADE)
     name = models.CharField(max_length=50)
+    objects = ModelStorageManager("REFERENCE")
 
 
 class Base(models.Model):

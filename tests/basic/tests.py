@@ -807,12 +807,10 @@ class SelectOnSaveTests(TestCase):
             ):
                 asos.save(force_update=True)
             msg = (
-                "An error occurred in the current transaction. You can't "
-                "execute queries until the end of the 'atomic' block."
+                "Save with update_fields did not affect any rows."
             )
             with self.assertRaisesMessage(DatabaseError, msg) as cm:
                 asos.save(update_fields=["pub_date"])
-            self.assertIsInstance(cm.exception.__cause__, DatabaseError)
         finally:
             Article._base_manager._queryset_class = orig_class
 

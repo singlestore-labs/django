@@ -9,6 +9,8 @@ from decimal import Decimal
 
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class CategoryMetaDataManager(models.Manager):
     def get_by_natural_key(self, kind, name):
@@ -20,6 +22,7 @@ class CategoryMetaData(models.Model):
     name = models.CharField(max_length=10)
     value = models.CharField(max_length=10)
     objects = CategoryMetaDataManager()
+    storage = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (("kind", "name"),)
@@ -69,15 +72,42 @@ class Article(models.Model):
     author = models.ForeignKey(Author, models.CASCADE)
     headline = models.CharField(max_length=50)
     pub_date = models.DateTimeField()
-    categories = models.ManyToManyField(Category)
-    meta_data = models.ManyToManyField(CategoryMetaData)
-    topics = models.ManyToManyField(Topic)
+    categories = models.ManyToManyField("Category", through="ArticleCategory")
+    meta_data = models.ManyToManyField("CategoryMetaData", through="ArticleCategoryMetaData")
+    topics = models.ManyToManyField("Topic", through="ArticleTopic")
 
     class Meta:
         ordering = ("pub_date",)
 
     def __str__(self):
         return self.headline
+
+
+class ArticleCategory(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'category'),)
+        db_table = "serializers_article_category"
+
+
+class ArticleCategoryMetaData(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    categorymetadata = models.ForeignKey(CategoryMetaData, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'categorymetadata'),)
+        db_table = "serializers_article_categorymetadata"
+
+
+class ArticleTopic(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'topic'),)
+        db_table = "serializers_article_topic"
 
 
 class AuthorProfile(models.Model):

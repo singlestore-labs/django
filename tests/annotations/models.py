@@ -4,7 +4,16 @@ from django.db import models
 class Author(models.Model):
     name = models.CharField(max_length=100)
     age = models.IntegerField()
-    friends = models.ManyToManyField("self", blank=True)
+    friends = models.ManyToManyField("self", blank=True, through="AuthorFriend")
+
+
+class AuthorFriend(models.Model):
+    from_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="from_author")
+    to_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="to_author")
+
+    class Meta:
+        unique_together = (('from_author', 'to_author'),)
+        db_table = "annotations_author_friend"
 
 
 class Publisher(models.Model):
@@ -18,18 +27,36 @@ class Book(models.Model):
     pages = models.IntegerField()
     rating = models.FloatField()
     price = models.DecimalField(decimal_places=2, max_digits=6)
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField("Author", through="BookAuthor")
     contact = models.ForeignKey(Author, models.CASCADE, related_name="book_contact_set")
     publisher = models.ForeignKey(Publisher, models.CASCADE)
     pubdate = models.DateField()
 
 
+class BookAuthor(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'author'),)
+        db_table = "annotations_book_author"
+
+
 class Store(models.Model):
     name = models.CharField(max_length=255)
-    books = models.ManyToManyField(Book)
+    books = models.ManyToManyField("Book", through="StoreBook")
     original_opening = models.DateTimeField()
     friday_night_closing = models.TimeField()
     area = models.IntegerField(null=True, db_column="surface")
+
+
+class StoreBook(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('store', 'book'),)
+        db_table = "annotations_store_book"
 
 
 class DepartmentStore(Store):

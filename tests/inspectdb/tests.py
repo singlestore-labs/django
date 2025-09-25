@@ -72,27 +72,53 @@ class InspectDBTestCase(TestCase):
         return assertFieldType
 
     def test_field_types(self):
-        """Test introspection of various Django field types"""
+        """
+        Test introspection of various Django field types. In SingleStore,
+        db_collation is always included to the introspection result of a char field
+        """
+        with connection.cursor() as cur:
+            cur.execute("SELECT @@collation_database")
+            results = cur.fetchall()
+            default_collation = results[0][0]
+
         assertFieldType = self.make_field_type_asserter()
         introspected_field_types = connection.features.introspected_field_types
         char_field_type = introspected_field_types["CharField"]
-        # Inspecting Oracle DB doesn't produce correct results (#19884):
-        # - it reports fields as blank=True when they aren't.
         if (
             not connection.features.interprets_empty_strings_as_nulls
             and char_field_type == "CharField"
         ):
-            assertFieldType("char_field", "models.CharField(max_length=10)")
+            assertFieldType(
+                "char_field",
+                f"models.CharField(max_length=10, db_collation='{default_collation}')",
+            )
             assertFieldType(
                 "null_char_field",
-                "models.CharField(max_length=10, blank=True, null=True)",
+                f"models.CharField(max_length=10, db_collation='{default_collation}', blank=True, null=True)",
             )
-            assertFieldType("email_field", "models.CharField(max_length=254)")
-            assertFieldType("file_field", "models.CharField(max_length=100)")
-            assertFieldType("file_path_field", "models.CharField(max_length=100)")
-            assertFieldType("slug_field", "models.CharField(max_length=50)")
-            assertFieldType("text_field", "models.TextField()")
-            assertFieldType("url_field", "models.CharField(max_length=200)")
+            assertFieldType(
+                "email_field",
+                f"models.CharField(max_length=254, db_collation='{default_collation}')",
+            )
+            assertFieldType(
+                "file_field",
+                f"models.CharField(max_length=100, db_collation='{default_collation}')",
+            )
+            assertFieldType(
+                "file_path_field",
+                f"models.CharField(max_length=100, db_collation='{default_collation}')",
+            )
+            assertFieldType(
+                "slug_field",
+                f"models.CharField(max_length=50, db_collation='{default_collation}')",
+            )
+            assertFieldType(
+                "text_field", f"models.TextField(db_collation='{default_collation}')"
+            )
+            assertFieldType(
+                "url_field",
+                f"models.CharField(max_length=200, db_collation='{default_collation}')",
+            )
         if char_field_type == "TextField":
             assertFieldType("char_field", "models.TextField()")
             assertFieldType(
@@ -109,14 +135,20 @@ class InspectDBTestCase(TestCase):
         if introspected_field_types["GenericIPAddressField"] == "GenericIPAddressField":
             assertFieldType("gen_ip_address_field", "models.GenericIPAddressField()")
         elif not connection.features.interprets_empty_strings_as_nulls:
-            assertFieldType("gen_ip_address_field", "models.CharField(max_length=39)")
+            assertFieldType(
+                "gen_ip_address_field",
+                f"models.CharField(max_length=39, db_collation='{default_collation}')",
+            )
         assertFieldType(
             "time_field", "models.%s()" % introspected_field_types["TimeField"]
         )
         if connection.features.has_native_uuid_field:
             assertFieldType("uuid_field", "models.UUIDField()")
         elif not connection.features.interprets_empty_strings_as_nulls:
-            assertFieldType("uuid_field", "models.CharField(max_length=32)")
+            assertFieldType(
+                "uuid_field",
+                f"models.CharField(max_length=32, db_collation='{default_collation}')",
+            )
 
     @skipUnlessDBFeature("can_introspect_json_field", "supports_json_field")
     def test_json_field(self):

@@ -1,9 +1,12 @@
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class User(models.Model):
     username = models.CharField(max_length=12, unique=True)
     serial = models.IntegerField()
+
+    objects = ModelStorageManager("REFERENCE")
 
 
 class UserSite(models.Model):
@@ -14,6 +17,7 @@ class UserSite(models.Model):
 class UserProfile(models.Model):
     user = models.ForeignKey(User, models.CASCADE, unique=True, to_field="username")
     about = models.TextField()
+    objects = ModelStorageManager("REFERENCE")
 
 
 class UserPreferences(models.Model):

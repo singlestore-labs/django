@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Author(models.Model):
@@ -9,10 +10,12 @@ class Author(models.Model):
         "Book",
         related_name="preferred_by_authors",
         related_query_name="preferred_by_authors",
+        through="AuthorBook",
     )
     content_type = models.ForeignKey(ContentType, models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(null=True)
     content_object = GenericForeignKey()
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
 
 class Editor(models.Model):
@@ -42,8 +45,20 @@ class Book(models.Model):
     state = models.CharField(max_length=9, choices=STATES, default=AVAILABLE)
 
 
+class AuthorBook(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('author', 'book'),)
+        db_table = "filtered_relation_author_book"
+        
+
 class Borrower(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class Reservation(models.Model):

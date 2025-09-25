@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Book(models.Model):
@@ -20,6 +21,7 @@ class Book(models.Model):
         verbose_name="Verbose Contributors",
         related_name="books_contributed",
         blank=True,
+        through="BookUser",
     )
     employee = models.ForeignKey(
         "Employee",
@@ -55,10 +57,14 @@ class Book(models.Model):
 class ImprovedBook(models.Model):
     book = models.OneToOneField(Book, models.CASCADE)
 
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
+
 
 class Department(models.Model):
     code = models.CharField(max_length=4, unique=True)
     description = models.CharField(max_length=50, blank=True, null=True)
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     def __str__(self):
         return self.description
@@ -70,6 +76,14 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.name
+
+class BookUser(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'user'),)
+        db_table = "admin_filters_book_user"
 
 
 class TaggedItem(models.Model):

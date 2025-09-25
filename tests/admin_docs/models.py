@@ -41,7 +41,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=200, help_text="The person's last name")
     company = models.ForeignKey(Company, models.CASCADE, help_text="place of work")
     family = models.ForeignKey(Family, models.SET_NULL, related_name="+", null=True)
-    groups = models.ManyToManyField(Group, help_text="has membership")
+    groups = models.ManyToManyField("Group", help_text="has membership", through="PersonGroup")
 
     def _get_full_name(self):
         return "%s %s" % (self.first_name, self.last_name)
@@ -88,3 +88,12 @@ class Person(models.Model):
 
     def get_groups_list(self):
         return []
+
+
+class PersonGroup(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('person', 'group'),)
+        db_table = "admin_docs_person_group"

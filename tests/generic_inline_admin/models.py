@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Episode(models.Model):
@@ -38,6 +39,8 @@ class PhoneNumber(models.Model):
     content_object = GenericForeignKey("content_type", "object_id")
     phone_number = models.CharField(max_length=30)
     category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         unique_together = (

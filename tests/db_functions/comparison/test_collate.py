@@ -1,6 +1,6 @@
 from django.db import connection
-from django.db.models import F, Value
-from django.db.models.functions import Collate
+from django.db.models import F, Value, TextField
+from django.db.models.functions import Collate, Cast
 from django.test import TestCase
 
 from ..models import Author
@@ -13,10 +13,12 @@ class CollateTests(TestCase):
         cls.author2 = Author.objects.create(alias="A", name="Jones 2")
 
     def test_collate_filter_ci(self):
-        collation = connection.features.test_collations.get("ci")
-        if not collation:
+        collation_ci = connection.features.test_collations.get("ci")
+        if not collation_ci:
             self.skipTest("This backend does not support case-insensitive collations.")
-        qs = Author.objects.filter(alias=Collate(Value("a"), collation))
+        qs = Author.objects.annotate(
+            alias_ci=Cast("alias", TextField(db_collation=collation_ci))
+        ).filter(alias_ci=Collate(Value("a"), collation_ci))
         self.assertEqual(qs.count(), 2)
 
     def test_collate_order_by_cs(self):

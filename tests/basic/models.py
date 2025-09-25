@@ -7,6 +7,7 @@ This is a basic model with only two non-primary-key fields.
 import uuid
 
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class Article(models.Model):
@@ -22,7 +23,7 @@ class Article(models.Model):
 
 class FeaturedArticle(models.Model):
     article = models.OneToOneField(Article, models.CASCADE, related_name="featured")
-
+    objects = ModelStorageManager("REFERENCE")
 
 class ArticleSelectOnSave(Article):
     class Meta:

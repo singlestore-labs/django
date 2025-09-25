@@ -98,7 +98,16 @@ class Contact(models.Model):
 
 class Organization(models.Model):
     name = models.CharField(max_length=255)
-    contacts = models.ManyToManyField(Contact, related_name="organizations")
+    contacts = models.ManyToManyField("Contact", related_name="organizations", through="OrganizationContact")
+
+
+class OrganizationContact(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('organization', 'contact'),)
+        db_table = "generic_relations_regress_organization_contact"
 
 
 class Company(models.Model):

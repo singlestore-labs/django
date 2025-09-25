@@ -34,7 +34,7 @@ class Author(models.Model):
 class Article(models.Model):
     Article_ID = models.AutoField(primary_key=True, db_column="Article ID")
     headline = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Author, db_table="my_m2m_table")
+    authors = models.ManyToManyField("Author", through="ArticleAuthor")
     primary_author = models.ForeignKey(
         Author,
         models.SET_NULL,
@@ -48,3 +48,12 @@ class Article(models.Model):
 
     def __str__(self):
         return self.headline
+
+
+class ArticleAuthor(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('article', 'author'),)
+        db_table = "my_m2m_table"

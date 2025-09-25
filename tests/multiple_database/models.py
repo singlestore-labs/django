@@ -3,6 +3,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Review(models.Model):
     source = models.CharField(max_length=100)
@@ -23,7 +25,7 @@ class PersonManager(models.Manager):
 
 
 class Person(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, primary_key=True)
 
     objects = PersonManager()
 
@@ -49,7 +51,7 @@ class BookManager(models.Manager):
 class Book(models.Model):
     title = models.CharField(max_length=100)
     published = models.DateField()
-    authors = models.ManyToManyField(Person)
+    authors = models.ManyToManyField("Person", through="BookPerson")
     editor = models.ForeignKey(
         Person, models.SET_NULL, null=True, related_name="edited"
     )
@@ -65,6 +67,15 @@ class Book(models.Model):
         return self.title
 
 
+class BookPerson(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'person'),)
+        db_table = "multiple_database_book_person"
+
+
 class Pet(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(Person, models.CASCADE)
@@ -76,6 +87,8 @@ class Pet(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, models.SET_NULL, null=True)
     flavor = models.CharField(max_length=100)
+    
+    objects = ModelStorageManager("REFERENCE")
 
     class Meta:
         ordering = ("flavor",)

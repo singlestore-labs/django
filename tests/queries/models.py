@@ -7,6 +7,8 @@ import datetime
 from django.db import models
 from django.db.models.functions import Now
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class DumbCategory(models.Model):
     pass
@@ -60,10 +62,19 @@ class Note(models.Model):
 class Annotation(models.Model):
     name = models.CharField(max_length=10)
     tag = models.ForeignKey(Tag, models.CASCADE)
-    notes = models.ManyToManyField(Note)
+    notes = models.ManyToManyField("Note", through="AnnotationNote")
 
     def __str__(self):
         return self.name
+
+
+class AnnotationNote(models.Model):
+    annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE)
+    note = models.ForeignKey(Note, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('annotation', 'note'),)
+        db_table = "queries_annotation_note"
 
 
 class DateTimePK(models.Model):
@@ -103,7 +114,8 @@ class Item(models.Model):
     name = models.CharField(max_length=10)
     created = models.DateTimeField()
     modified = models.DateTimeField(blank=True, null=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField("Tag", blank=True, through="ItemTag")
+
     creator = models.ForeignKey(Author, models.CASCADE)
     note = models.ForeignKey(Note, models.CASCADE)
 
@@ -112,6 +124,15 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ItemTag(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('item', 'tag'),)
+        db_table = "queries_item_tag"
 
 
 class Report(models.Model):
@@ -164,11 +185,19 @@ class Number(models.Model):
 
 class Valid(models.Model):
     valid = models.CharField(max_length=10)
-    parent = models.ManyToManyField("self")
+    parent = models.ManyToManyField("self", through="ValidFriend")
 
     class Meta:
         ordering = ["valid"]
 
+
+class ValidFriend(models.Model):
+    from_valid = models.ForeignKey(Valid, on_delete=models.CASCADE, related_name="from_valid")
+    to_valid = models.ForeignKey(Valid, on_delete=models.CASCADE, related_name="to_valid")
+
+    class Meta:
+        unique_together = (('from_valid', 'to_valid'),)
+        db_table = "queries_valid_parent"
 
 # Some funky cross-linked models for testing a couple of infinite recursion
 # cases.
@@ -269,9 +298,17 @@ class Related(models.Model):
 
 class CustomPkTag(models.Model):
     id = models.CharField(max_length=20, primary_key=True)
-    custom_pk = models.ManyToManyField(CustomPk)
+    custom_pk = models.ManyToManyField("CustomPk", through="CustomPkTagCustomPk")
     tag = models.CharField(max_length=20)
 
+
+class CustomPkTagCustomPk(models.Model):
+    custompktag = models.ForeignKey(CustomPkTag, on_delete=models.CASCADE)
+    custompk = models.ForeignKey(CustomPk, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('custompktag', 'custompk'),)
+        db_table = "queries_custompktag_custompk"
 
 # An inter-related setup with a model subclass that has a nullable
 # path to another model, and a return path from that model.
@@ -380,6 +417,8 @@ class Article(models.Model):
 
 class Food(models.Model):
     name = models.CharField(max_length=20, unique=True)
+
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
     def __str__(self):
         return self.name
@@ -545,6 +584,10 @@ class JobResponsibilities(models.Model):
         "Responsibility", models.CASCADE, to_field="description"
     )
 
+    class Meta:
+        unique_together = (('job', 'responsibility'),)
+        db_table = "queries_job_responsibility"
+
 
 class Responsibility(models.Model):
     description = models.CharField(max_length=20, unique=True)
@@ -592,8 +635,17 @@ class Program(models.Model):
 
 
 class Channel(models.Model):
-    programs = models.ManyToManyField(Program)
+    programs = models.ManyToManyField("Program", through="ChannelProgram")
     identifier = models.OneToOneField(Identifier, models.CASCADE)
+
+
+class ChannelProgram(models.Model):
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('channel', 'program'),)
+        db_table = "queries_channel_program"
 
 
 class Book(models.Model):
@@ -608,7 +660,16 @@ class Chapter(models.Model):
 
 class Paragraph(models.Model):
     text = models.TextField()
-    page = models.ManyToManyField("Page")
+    page = models.ManyToManyField("Page", through="ParagraphPage")
+
+
+class ParagraphPage(models.Model):
+    paragraph = models.ForeignKey(Paragraph, on_delete=models.CASCADE)
+    page = models.ForeignKey("Page", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('paragraph', 'page'),)
+        db_table = "queries_paragraph_page"
 
 
 class Page(models.Model):
@@ -706,6 +767,10 @@ class Employment(models.Model):
     employee = models.ForeignKey(Person, models.CASCADE)
     title = models.CharField(max_length=128)
 
+    class Meta:
+        unique_together = (('employer', 'employee'),)
+        db_table = "queries_company_person"
+
 
 class School(models.Model):
     pass
@@ -719,12 +784,39 @@ class Classroom(models.Model):
     name = models.CharField(max_length=20)
     has_blackboard = models.BooleanField(null=True)
     school = models.ForeignKey(School, models.CASCADE)
-    students = models.ManyToManyField(Student, related_name="classroom")
+    students = models.ManyToManyField(Student, related_name="classroom", through="ClassroomStudent")
+
+
+class ClassroomStudent(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('classroom', 'student'),)
+        db_table = "queries_classroom_student"
 
 
 class Teacher(models.Model):
-    schools = models.ManyToManyField(School)
-    friends = models.ManyToManyField("self")
+    schools = models.ManyToManyField(School, through="TeacherSchool")
+    friends = models.ManyToManyField("self", through="TeacherFriend")
+
+
+class TeacherSchool(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('teacher', 'school'),)
+        db_table = "queries_teacher_school"
+
+
+class TeacherFriend(models.Model):
+    from_teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name="from_teacher")
+    to_teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name="to_teacher")
+
+    class Meta:
+        unique_together = (('from_teacher', 'to_teacher'),)
+        db_table = "queries_teacher_friend"
 
 
 class Ticket23605AParent(models.Model):

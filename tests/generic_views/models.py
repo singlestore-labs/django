@@ -42,7 +42,7 @@ class Book(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     pages = models.IntegerField()
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField("Author", through="BookAuthor")
     pubdate = models.DateField()
 
     objects = models.Manager()
@@ -53,6 +53,15 @@ class Book(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class BookAuthor(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'author'),)
+        db_table = "book_author"
 
 
 class Page(models.Model):

@@ -2,6 +2,7 @@ import datetime
 
 from django.db import DJANGO_VERSION_PICKLE_KEY, models
 from django.utils.translation import gettext_lazy as _
+from django_singlestore.schema import ModelStorageManager
 
 
 def standalone_number():
@@ -47,6 +48,9 @@ class Happening(models.Model):
     number2 = models.IntegerField(blank=True, default=Numbers.get_static_number)
     event = models.OneToOneField(Event, models.CASCADE, null=True)
 
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
+
+
 
 class BinaryFieldModel(models.Model):
     data = models.BinaryField(null=True)
@@ -62,7 +66,19 @@ class Container:
 
 class M2MModel(models.Model):
     added = models.DateField(default=datetime.date.today)
-    groups = models.ManyToManyField(Group)
+    groups = models.ManyToManyField("Group", through="M2MModelGroup")
+
+
+class M2MModelGroup(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    m2mmodel = models.ForeignKey(M2MModel, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('m2mmodel', 'group'),)
+        db_table = "queryset_pickle_m2mmodel_group"
+        managed = True
+
 
 
 class AbstractEvent(Event):

@@ -1,4 +1,5 @@
 from django.db import models
+from django_singlestore.schema import ModelStorageManager
 
 
 class User(models.Model):
@@ -10,6 +11,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=2)
+    objects = ModelStorageManager("REFERENCE")
 
 
 class UserStatResult(models.Model):
@@ -20,11 +22,15 @@ class UserStat(models.Model):
     user = models.OneToOneField(User, models.CASCADE, primary_key=True)
     posts = models.IntegerField()
     results = models.ForeignKey(UserStatResult, models.CASCADE)
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class StatDetails(models.Model):
     base_stats = models.OneToOneField(UserStat, models.CASCADE)
     comments = models.IntegerField()
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class AdvancedUserStat(UserStat):
@@ -38,6 +44,8 @@ class Image(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     image = models.OneToOneField(Image, models.SET_NULL, null=True)
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class Parent1(models.Model):
@@ -52,11 +60,14 @@ class Parent2(models.Model):
 
 class Child1(Parent1, Parent2):
     value = models.IntegerField()
+    objects = ModelStorageManager("REFERENCE")
 
 
 class Child2(Parent1):
     parent2 = models.OneToOneField(Parent2, models.CASCADE)
     value = models.IntegerField()
+    objects = ModelStorageManager("REFERENCE")
+
 
 
 class Child3(Child2):
@@ -76,3 +87,4 @@ class LinkedList(models.Model):
         blank=True,
         null=True,
     )
+    objects = ModelStorageManager("REFERENCE")

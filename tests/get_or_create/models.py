@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=100, unique=True)
+    first_name = models.CharField(max_length=100, primary_key=True)
     last_name = models.CharField(max_length=100)
     birthday = models.DateField()
     defaults = models.TextField()
@@ -23,12 +23,12 @@ class Profile(models.Model):
 
 
 class Tag(models.Model):
-    text = models.CharField(max_length=255, unique=True)
+    text = models.CharField(max_length=255, primary_key=True)
 
 
 class Thing(models.Model):
     name = models.CharField(max_length=255)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, through="ThingTag")
 
     @property
     def capitalized_name_property(self):
@@ -41,6 +41,15 @@ class Thing(models.Model):
     @property
     def name_in_all_caps(self):
         return self.name.upper()
+
+
+class ThingTag(models.Model):
+    thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('thing', 'tag'),)
+        db_table = "get_or_create_thing_tag"
 
 
 class Publisher(models.Model):
@@ -57,7 +66,7 @@ class Journalist(Author):
 
 class Book(models.Model):
     name = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Author, related_name="books")
+    authors = models.ManyToManyField(Author, related_name="books", through="BookAuthor")
     publisher = models.ForeignKey(
         Publisher,
         models.CASCADE,
@@ -65,3 +74,12 @@ class Book(models.Model):
         db_column="publisher_id_column",
     )
     updated = models.DateTimeField(auto_now=True)
+
+
+class BookAuthor(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('book', 'author'),)
+        db_table = "get_or_create_book_author"

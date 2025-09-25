@@ -1,6 +1,8 @@
 from django.apps.registry import Apps
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 # Because we want to test creation and deletion of these as separate things,
 # these models are all inserted into a separate Apps so the main test
 # runner doesn't migrate them.
@@ -13,6 +15,8 @@ class Author(models.Model):
     height = models.PositiveIntegerField(null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
     uuid = models.UUIDField(null=True)
+
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         apps = new_apps
@@ -56,7 +60,7 @@ class AuthorWithIndexedName(models.Model):
 
 
 class AuthorWithUniqueName(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     class Meta:
         apps = new_apps
@@ -76,6 +80,8 @@ class Book(models.Model):
     title = models.CharField(max_length=100, db_index=True)
     pub_date = models.DateTimeField()
     # tags = models.ManyToManyField("Tag", related_name="books")
+    
+    objects = ModelStorageManager("ROWSTORE")
 
     class Meta:
         apps = new_apps
@@ -114,7 +120,7 @@ class BookWithSlug(models.Model):
     author = models.ForeignKey(Author, models.CASCADE)
     title = models.CharField(max_length=100, db_index=True)
     pub_date = models.DateTimeField()
-    slug = models.CharField(max_length=20, unique=True)
+    slug = models.CharField(max_length=20, primary_key=True)
 
     class Meta:
         apps = new_apps
@@ -142,6 +148,8 @@ class IntegerPK(models.Model):
     i = models.IntegerField(primary_key=True)
     j = models.IntegerField(unique=True)
 
+    objects = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
+
     class Meta:
         apps = new_apps
         db_table = "INTEGERPK"  # uppercase to ensure proper quoting
@@ -150,6 +158,8 @@ class IntegerPK(models.Model):
 class Note(models.Model):
     info = models.TextField()
     address = models.TextField(null=True)
+    
+    objects = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
 
     class Meta:
         apps = new_apps
@@ -165,7 +175,17 @@ class NoteRename(models.Model):
 
 class Tag(models.Model):
     title = models.CharField(max_length=255)
+    slug = models.SlugField(primary_key=True)
+
+    class Meta:
+        apps = new_apps
+
+
+class TagDup(models.Model):
+    title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         apps = new_apps
@@ -173,7 +193,7 @@ class Tag(models.Model):
 
 class TagM2MTest(models.Model):
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(primary_key=True)
 
     class Meta:
         apps = new_apps
@@ -181,16 +201,27 @@ class TagM2MTest(models.Model):
 
 class TagUniqueRename(models.Model):
     title = models.CharField(max_length=255)
-    slug2 = models.SlugField(unique=True)
+    slug2 = models.SlugField(primary_key=True)
 
     class Meta:
         apps = new_apps
         db_table = "schema_tag"
 
 
+class TagDupUniqueRename(models.Model):
+    title = models.CharField(max_length=255)
+    slug2 = models.SlugField(unique=True)
+
+    class Meta:
+        apps = new_apps
+        db_table = "schema_tagdup"
+
+
 # Based on tests/reserved_names/models.py
 class Thing(models.Model):
     when = models.CharField(max_length=1, primary_key=True)
+    
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
     class Meta:
         apps = new_apps
@@ -203,6 +234,8 @@ class Thing(models.Model):
 class UniqueTest(models.Model):
     year = models.IntegerField()
     slug = models.SlugField(unique=False)
+
+    objects = ModelStorageManager(table_storage_type="ROWSTORE REFERENCE")
 
     class Meta:
         apps = new_apps

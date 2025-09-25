@@ -1,5 +1,7 @@
 from django.db import models
 
+from django_singlestore.schema import ModelStorageManager
+
 
 class Article(models.Model):
     CHOICES = (
@@ -52,11 +54,17 @@ class NonAutoPK(models.Model):
 # Chained foreign keys with to_field produce incorrect query #18432
 class Model1(models.Model):
     pkey = models.IntegerField(unique=True, db_index=True)
+    
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class Model2(models.Model):
     model1 = models.ForeignKey(Model1, models.CASCADE, unique=True, to_field="pkey")
 
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
+
 
 class Model3(models.Model):
     model2 = models.ForeignKey(Model2, models.CASCADE, unique=True, to_field="model1")
+
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
