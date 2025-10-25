@@ -2344,6 +2344,7 @@ class SchemaTests(TransactionTestCase):
         with self.assertRaises(IntegrityError):
             NoteRename.objects.create(detail_info=None)
 
+    @skipUnlessDBFeature("supports_db_default")
     @isolate_apps("schema")
     def test_rename_keep_db_default(self):
         """Renaming a field shouldn't affect a database default."""
@@ -2369,6 +2370,7 @@ class SchemaTests(TransactionTestCase):
         columns = self.column_classes(AuthorDbDefault)
         self.assertEqual(columns["renamed_year"][1].default, "1985")
 
+    @skipUnlessDBFeature("supports_db_default")
     @isolate_apps("schema")
     def test_add_field_both_defaults_preserves_db_default(self):
         class Author(Model):
@@ -2386,6 +2388,7 @@ class SchemaTests(TransactionTestCase):
         columns = self.column_classes(Author)
         self.assertEqual(columns["birth_year"][1].default, "1988")
 
+    @skipUnlessDBFeature("supports_db_default")
     @isolate_apps("schema")
     def test_add_text_field_with_db_default(self):
         class Author(Model):
@@ -2416,6 +2419,7 @@ class SchemaTests(TransactionTestCase):
         with connection.schema_editor() as editor, self.assertNumQueries(0):
             editor.alter_field(Author, Author._meta.get_field("name"), new_field)
 
+    @skipUnlessDBFeature("supports_db_default")
     @isolate_apps("schema")
     def test_db_default_output_field_resolving(self):
         class Author(Model):
