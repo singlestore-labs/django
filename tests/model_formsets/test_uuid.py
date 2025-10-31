@@ -116,9 +116,7 @@ class InlineFormsetTests(TestCase):
         
         # Save parent first
         formset.instance.save()
-    
         # Then save the formset
         formset.save()
-    
         self.assertIsNotNone(formset.instance.uuid)
         self.assertEqual(formset.forms[0].instance.parent_id, formset.instance.uuid)
