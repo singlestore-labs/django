@@ -113,7 +113,7 @@ class InlineFormsetTests(TestCase):
             }
         )
         self.assertIs(formset.is_valid(), True)
-        
+
         # Save parent first
         formset.instance.save()
         # Then save the formset

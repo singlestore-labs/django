@@ -50,12 +50,11 @@ class DefaultTests(TestCase):
 
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
-    def test_field_db_defaults_refresh(self):  
-        
+    def test_field_db_defaults_refresh(self):        
         a = DBArticle()
         a.save()
         a.refresh_from_db()
-    
+
         self.assertIsInstance(a.id, int)
         self.assertEqual(a.headline, "Default headline")
         self.assertIsInstance(a.pub_date, datetime)
