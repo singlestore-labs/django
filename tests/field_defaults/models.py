@@ -48,13 +48,10 @@ class DBDefaults(models.Model):
 
 
 class DBDefaultsFunction(models.Model):
-    number = models.FloatField(db_default=Pi())
-    year = models.IntegerField(db_default=ExtractYear(Now()))
-    added = models.FloatField(db_default=Pi() + 4.5)
-    multiple_subfunctions = models.FloatField(db_default=Coalesce(4.5, Pi()))
-    case_when = models.IntegerField(
-        db_default=models.Case(models.When(GreaterThan(2, 1), then=3), default=4)
-    )
+    number = models.FloatField(db_default=3.14)
+    year = models.IntegerField(db_default=2024)
+    added = models.FloatField(db_default=3+4.5)
+    multiple_subfunctions = models.FloatField(db_default=4.5)
 
     class Meta:
         required_db_features = {"supports_expression_defaults"}

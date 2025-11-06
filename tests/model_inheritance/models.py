@@ -112,6 +112,7 @@ class ItalianRestaurantCommonParent(ItalianRestaurant, Place):
     place_ptr_two = models.OneToOneField(
         Place, on_delete=models.CASCADE, parent_link=True
     )
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class Supplier(Place):
@@ -137,6 +138,7 @@ class ParkingLot(Place):
         Place, models.CASCADE, primary_key=True, parent_link=True
     )
     main_site = models.ForeignKey(Place, models.CASCADE, related_name="lot")
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 #
@@ -228,13 +230,16 @@ class FirstParent(CommonAncestor):
     first_ancestor = models.OneToOneField(
         CommonAncestor, models.CASCADE, primary_key=True, parent_link=True
     )
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class SecondParent(CommonAncestor):
     second_ancestor = models.OneToOneField(
         CommonAncestor, models.CASCADE, primary_key=True, parent_link=True
     )
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
 
 
 class CommonChild(FirstParent, SecondParent):
+    objects = ModelStorageManager(table_storage_type="REFERENCE")
     pass

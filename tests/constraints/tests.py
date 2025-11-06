@@ -1263,6 +1263,7 @@ class UniqueConstraintTests(TestCase):
         with self.assertRaisesMessage(ValueError, msg):
             models.UniqueConstraint(fields=["field"])
 
+    @skipUnlessDBFeature("supports_db_default")
     def test_database_default(self):
         models.UniqueConstraint(
             fields=["field_with_db_default"], name="unique_field_with_db_default"

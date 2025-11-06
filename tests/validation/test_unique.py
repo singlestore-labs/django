@@ -4,7 +4,7 @@ import unittest
 from django.apps.registry import Apps
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, skipUnlessDBFeature
 
 from .models import (
     CustomPKModel,
@@ -146,6 +146,7 @@ class PerformUniqueChecksTest(TestCase):
             mtv = ModelToValidate(number=10, name="Some Name")
             mtv.full_clean()
 
+    @skipUnlessDBFeature("supports_db_default")
     def test_unique_db_default(self):
         UniqueFieldsModel.objects.create(unique_charfield="foo", non_unique_field=42)
         um = UniqueFieldsModel(unique_charfield="bar", non_unique_field=42)

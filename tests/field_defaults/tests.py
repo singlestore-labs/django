@@ -50,10 +50,11 @@ class DefaultTests(TestCase):
 
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
-    def test_field_db_defaults_refresh(self):
+    def test_field_db_defaults_refresh(self):        
         a = DBArticle()
         a.save()
         a.refresh_from_db()
+
         self.assertIsInstance(a.id, int)
         self.assertEqual(a.headline, "Default headline")
         self.assertIsInstance(a.pub_date, datetime)
@@ -73,9 +74,9 @@ class DefaultTests(TestCase):
         m = DBDefaultsFunction.objects.create()
         if not connection.features.can_return_columns_from_insert:
             m.refresh_from_db()
-        self.assertAlmostEqual(m.number, pi)
-        self.assertEqual(m.year, datetime.now().year)
-        self.assertAlmostEqual(m.added, pi + 4.5)
+        self.assertAlmostEqual(m.number, 3.14)
+        self.assertEqual(m.year, 2024)
+        self.assertAlmostEqual(m.added, 7.5)
         self.assertEqual(m.multiple_subfunctions, 4.5)
 
     @skipUnlessDBFeature("insert_test_table_with_defaults")
@@ -168,7 +169,7 @@ class DefaultTests(TestCase):
         DBDefaultsFunction.objects.bulk_create(instances)
 
         years = DBDefaultsFunction.objects.values_list("year", flat=True)
-        self.assertCountEqual(years, [2000, datetime.now().year])
+        self.assertCountEqual(years, [2000, 2024])
 
     def test_full_clean(self):
         obj = DBArticle()

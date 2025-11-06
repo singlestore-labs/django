@@ -1626,6 +1626,7 @@ class OperationTests(OperationTestBase):
             sorted(definition[2]), ["field", "model_name", "name", "preserve_default"]
         )
 
+    @skipUnlessDBFeature("supports_db_default")
     def test_add_field_database_default(self):
         """The AddField operation can set and unset a database default."""
         app_label = "test_adfldd"
@@ -1670,6 +1671,7 @@ class OperationTests(OperationTestBase):
             },
         )
 
+    @skipUnlessDBFeature("supports_db_default")
     def test_add_field_database_default_special_char_escaping(self):
         app_label = "test_adflddsce"
         table_name = f"{app_label}_pony"
@@ -1717,7 +1719,7 @@ class OperationTests(OperationTestBase):
                             app_label, editor, new_state, project_state
                         )
 
-    @skipUnlessDBFeature("supports_expression_defaults")
+    @skipUnlessDBFeature("supports_db_default")
     def test_add_field_database_default_function(self):
         app_label = "test_adflddf"
         table_name = f"{app_label}_pony"
@@ -1745,6 +1747,7 @@ class OperationTests(OperationTestBase):
             new_pony.refresh_from_db()
         self.assertAlmostEqual(old_pony.height, math.pi)
 
+    @skipUnlessDBFeature("supports_db_default")
     def test_add_field_both_defaults(self):
         """The AddField operation with both default and db_default."""
         app_label = "test_adflbddd"

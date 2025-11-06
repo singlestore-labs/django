@@ -39,11 +39,20 @@ class SchoolBusManager(models.Manager):
 
 class SchoolBus(models.Model):
     number = models.IntegerField()
-    schoolclasses = models.ManyToManyField("SchoolClass")
+    schoolclasses = models.ManyToManyField("SchoolClass", through="SchoolBusSchoolClass")
     objects = SchoolBusManager()
 
     class Meta:
         base_manager_name = "objects"
+
+
+class SchoolBusSchoolClass(models.Model):
+    schoolbus = models.ForeignKey(SchoolBus, on_delete=models.CASCADE)
+    schoolclass = models.ForeignKey(SchoolClass, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('schoolbus', 'schoolclass'),)
+        db_table = "backends_schoolbus_schoolclass"
 
 
 class VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ(models.Model):

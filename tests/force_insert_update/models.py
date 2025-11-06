@@ -4,7 +4,7 @@ automatic behavior).
 """
 
 from django.db import models
-
+from django_singlestore.schema import ModelStorageManager
 
 class Counter(models.Model):
     name = models.CharField(max_length=10)
@@ -37,7 +37,9 @@ class OtherSubCounter(Counter):
     other_counter_ptr = models.OneToOneField(
         Counter, primary_key=True, parent_link=True, on_delete=models.CASCADE
     )
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
 
 
 class DiamondSubSubCounter(SubCounter, OtherSubCounter):
+    objects = ModelStorageManager("ROWSTORE REFERENCE")
     pass
