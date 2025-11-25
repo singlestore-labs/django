@@ -1,5 +1,5 @@
 from django import forms
-from django.db import models
+from django.db import models, connection
 from django.test import SimpleTestCase, TestCase
 
 from .models import Post
@@ -30,6 +30,13 @@ class TextFieldTests(TestCase):
         self.assertEqual(Post.objects.filter(body=24).count(), 0)
 
     def test_emoji(self):
+        if connection.vendor == "singlestore":
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT @@memsql_version")
+                version = cursor.fetchone()[0]
+                if version.startswith("8.5"):
+                    self.skipTest("SingleStore 8.5 and earlier have utf8mb4 encoding limitations")
+    
         p = Post.objects.create(title="Whatever", body="Smile 😀.")
         p.refresh_from_db()
         self.assertEqual(p.body, "Smile 😀.")

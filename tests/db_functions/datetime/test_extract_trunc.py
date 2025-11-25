@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from datetime import timezone as datetime_timezone
 
 from django.conf import settings
-from django.db import DataError, OperationalError
+from django.db import DataError, OperationalError, connection
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -1637,6 +1637,13 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_outerref(self):
+        if connection.vendor == "singlestore":
+            # Check SingleStore version
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT @@memsql_version")
+            version = cursor.fetchone()[0]
+            if version.startswith("8.5"):
+                self.skipTest("SingleStore 8.5 has limitations on correlated subqueries")
         datetime_1 = datetime(2000, 1, 1)
         datetime_2 = datetime(2001, 3, 5)
         datetime_3 = datetime(2002, 1, 3)

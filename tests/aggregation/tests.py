@@ -1412,6 +1412,14 @@ class AggregateTestCase(TestCase):
     def test_aggregation_subquery_annotation(self):
         """Subquery annotations are excluded from the GROUP BY if they are
         not explicitly grouped against."""
+        if connection.vendor == "singlestore":
+            # Check SingleStore version
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT @@memsql_version")
+            version = cursor.fetchone()[0]
+            if version.startswith("8.5"):
+                self.skipTest("SingleStore 8.5 has limitations on correlated subqueries")
+        
         latest_book_pubdate_qs = (
             Book.objects.filter(publisher=OuterRef("pk"))
             .order_by("-pubdate")
@@ -1470,6 +1478,15 @@ class AggregateTestCase(TestCase):
         Subquery annotations and external aliases are excluded from the GROUP
         BY if they are not selected.
         """
+        # Skip test for SingleStore 8.5 due to correlated subquery limitations
+        if connection.vendor == "singlestore":
+            # Check SingleStore version
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT @@memsql_version")
+            version = cursor.fetchone()[0]
+            if version.startswith("8.5"):
+                self.skipTest("SingleStore 8.5 has limitations on correlated subqueries")
+
         books_qs = (
             Book.objects.annotate(
                 first_author_the_same_age=Subquery(

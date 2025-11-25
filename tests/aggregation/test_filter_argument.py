@@ -18,7 +18,7 @@ from django.db.models import (
 )
 from django.test import TestCase
 from django.test.utils import Approximate
-
+from django.db import connection
 from .models import Author, Book, Publisher
 
 
@@ -145,6 +145,13 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggs["cnt"], 2)
 
     def test_filtered_aggregate_ref_subquery_annotation(self):
+        if connection.vendor == "singlestore":
+            # Check SingleStore version
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT @@memsql_version")
+            version = cursor.fetchone()[0]
+            if version.startswith("8.5"):
+                self.skipTest("SingleStore 8.5 has limitations on correlated subqueries")
         aggs = Author.objects.annotate(
             earliest_book_year=Subquery(
                 Book.objects.filter(
