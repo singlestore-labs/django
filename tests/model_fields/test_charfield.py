@@ -3,6 +3,7 @@ from django.db import models, connection
 from django.test import SimpleTestCase, TestCase
 
 from .models import Post
+from django_singlestore.utils import check_version_ge
 
 
 class TestCharField(TestCase):
@@ -20,12 +21,10 @@ class TestCharField(TestCase):
         self.assertEqual(Post.objects.filter(title=9).count(), 0)
 
     def test_emoji(self):
-        if connection.vendor == "singlestore":
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT @@memsql_version")
-                version = cursor.fetchone()[0]
-                if version.startswith("8.5"):
-                    self.skipTest("SingleStore 8.5 and earlier have utf8mb4 encoding limitations")
+        
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore 8.5 and earlier have utf8mb4 encoding limitations")
+
         p = Post.objects.create(title="Smile 😀", body="Whatever.")
         p.refresh_from_db()
         self.assertEqual(p.title, "Smile 😀")

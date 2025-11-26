@@ -87,6 +87,8 @@ from .models import (
     Time,
 )
 
+from django_singlestore.utils import check_version_ge
+
 
 class BasicExpressionsTests(TestCase):
     @classmethod
@@ -498,13 +500,10 @@ class BasicExpressionsTests(TestCase):
         self.assertIsInstance(Exists(queryset).output_field, BooleanField)
 
     def test_subquery(self):
-        if connection.vendor == "singlestore":
-            # Check SingleStore version
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT @@memsql_version")
-            version = cursor.fetchone()[0]
-            if version.startswith(("8.5" ,"8.7")):
-                self.skipTest("SingleStore 8.5 has limitations on correlated subqueries")
+
+        if not check_version_ge(connection, "8.9"):
+            self.skipTest("SingleStore prior to 8.9 has limitations on correlated subqueries")
+    
     
         Company.objects.filter(name="Example Inc.").update(
             point_of_contact=Employee.objects.get(firstname="Joe", lastname="Smith"),
