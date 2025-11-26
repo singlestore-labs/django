@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from datetime import timezone as datetime_timezone
 
 from django.conf import settings
-from django.db import DataError, OperationalError
+from django.db import DataError, OperationalError, connection
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -48,6 +48,7 @@ from django.test import (
 from django.utils import timezone
 
 from ..models import Author, DTModel, Fan
+from django_singlestore.utils import check_version_ge
 
 
 def truncate_to(value, kind, tzinfo=None):
@@ -1637,6 +1638,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_outerref(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 has limitations on correlated subqueries")
+    
         datetime_1 = datetime(2000, 1, 1)
         datetime_2 = datetime(2001, 3, 5)
         datetime_3 = datetime(2002, 1, 3)

@@ -18,9 +18,9 @@ from django.db.models import (
 )
 from django.test import TestCase
 from django.test.utils import Approximate
-
+from django.db import connection
 from .models import Author, Book, Publisher
-
+from django_singlestore.utils import check_version_ge
 
 class FilteredAggregateTests(TestCase):
     @classmethod
@@ -145,6 +145,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggs["cnt"], 2)
 
     def test_filtered_aggregate_ref_subquery_annotation(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 has limitations on correlated subqueries")
+    
         aggs = Author.objects.annotate(
             earliest_book_year=Subquery(
                 Book.objects.filter(

@@ -2,6 +2,7 @@ import datetime
 import math
 import re
 from decimal import Decimal
+from django_singlestore.utils import check_version_ge
 
 from django.core.exceptions import FieldError
 from django.db import connection
@@ -1412,6 +1413,9 @@ class AggregateTestCase(TestCase):
     def test_aggregation_subquery_annotation(self):
         """Subquery annotations are excluded from the GROUP BY if they are
         not explicitly grouped against."""
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 has limitations on correlated subqueries")
+    
         latest_book_pubdate_qs = (
             Book.objects.filter(publisher=OuterRef("pk"))
             .order_by("-pubdate")
@@ -1470,6 +1474,9 @@ class AggregateTestCase(TestCase):
         Subquery annotations and external aliases are excluded from the GROUP
         BY if they are not selected.
         """
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 has limitations on correlated subqueries")
+    
         books_qs = (
             Book.objects.annotate(
                 first_author_the_same_age=Subquery(

@@ -42,6 +42,8 @@ from django.utils.deprecation import RemovedInDjango51Warning
 
 from .models import CustomJSONDecoder, JSONModel, NullableJSONModel, RelatedJSONModel
 
+from django_singlestore.utils import check_version_ge
+
 
 @skipUnlessDBFeature("supports_json_field")
 class JSONFieldTests(TestCase):
@@ -414,6 +416,10 @@ class TestQuerying(TestCase):
                 self.assertSequenceEqual(query, expected)
 
     def test_ordering_grouping_by_key_transform(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+    
+
         base_qs = NullableJSONModel.objects.filter(value__d__0__isnull=False)
         for qs in (
             base_qs.order_by("value__d__0"),
@@ -544,6 +550,9 @@ class TestQuerying(TestCase):
         )
 
     def test_key_text_transform_char_lookup(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+
         qs = NullableJSONModel.objects.annotate(
             char_value=KeyTextTransform("foo", "value"),
         ).filter(char_value__startswith="bar")
@@ -913,6 +922,9 @@ class TestQuerying(TestCase):
                 )
 
     def test_key_iexact(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__iexact="BaR").exists(), True
         )
@@ -991,36 +1003,52 @@ class TestQuerying(TestCase):
         )
 
     def test_key_icontains(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__icontains="Ar").exists(), True
         )
 
     def test_key_startswith(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__startswith="b").exists(), True
         )
 
     def test_key_istartswith(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__istartswith="B").exists(), True
         )
 
     def test_key_endswith(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__endswith="r").exists(), True
         )
 
     def test_key_iendswith(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__iendswith="R").exists(), True
         )
 
     def test_key_regex(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__regex=r"^bar$").exists(), True
         )
 
     def test_key_iregex(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
         self.assertIs(
             NullableJSONModel.objects.filter(value__foo__iregex=r"^bAr$").exists(), True
         )
@@ -1140,6 +1168,9 @@ class TestQuerying(TestCase):
         )
 
     def test_key_text_transform_from_lookup(self):
+        if not check_version_ge(connection, "8.7"):
+            self.skipTest("SingleStore prior to 8.7 supports it differently")
+
         qs = NullableJSONModel.objects.annotate(b=KT("value__bax__foo")).filter(
             b__contains="ar",
         )
